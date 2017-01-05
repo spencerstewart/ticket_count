@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Ticket Count: Priority</title>
+    <!-- <script type="text/javascript" src="js/jquery-3.1.1.min.js"></script> -->
+    <script
+      src="https://code.jquery.com/jquery-3.1.1.min.js"
+      integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+      crossorigin="anonymous"></script>
+
+  </head>
+  <body>
+
+
+    <h1>Ticket Count by Priority</h1>
+    <div class="">
+      <p>Critical Priority</p>
+      <p id="critical_priority"></p>
+    </div>
+    <div class="">
+      <p>High Priority</p>
+      <p id="high_priority"></p>
+    </div>
+    <div class="">
+      <p>Medium Priority</p>
+      <p id="high_priority"></p>
+    </div>
+    <div class="">
+      <p>Low Priority</p>
+      <p id="high_priority"></p>
+    </div>
+    <script>
+      $.ajax({
+        url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(1)')) and (OData__Status ne 'Closed')",
+        type: "GET",
+        // dataType: "json",
+        timeout: 3000,
+        headers: {
+            accept: "application/json;odata=verbose",
+            contentType: "application/json;odata=verbose"
+        },
+        success: function(data) {
+            // you can find the items in JSON format under data.results
+          console.log(data.d.results);
+          console.log(data.d.results.length);
+          $("#critical_priority").html(data.d.results.length);
+        },
+        error: function(data, errorCode, errorMessage) {
+            // error handling
+            $("#critical_priority").html('Error');
+        }
+      });
+      $.ajax({
+        url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(2)') and (OData__Status ne 'Closed')",
+        type: "GET",
+        // dataType: "json",
+        timeout: 3000,
+        headers: {
+            accept: "application/json;odata=verbose",
+            contentType: "application/json;odata=verbose"
+        },
+        success: function(data) {
+            // you can find the items in JSON format under data.results
+          console.log(data.d.results);
+          console.log(data.d.results.length);
+          $("#high_priority").html(data.d.results.length);
+        },
+        error: function(data, errorCode, errorMessage) {
+            // error handling
+            $("#high_priority").html('Error');
+        }
+      });
+      $.ajax({
+        url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(Priority eq '(2) High') and (OData__Status ne 'Closed')",
+        type: "GET",
+        // dataType: "json",
+        timeout: 3000,
+        headers: {
+            accept: "application/json;odata=verbose",
+            contentType: "application/json;odata=verbose"
+        },
+        success: function(data) {
+            // you can find the items in JSON format under data.results
+          console.log(data.d.results);
+          console.log(data.d.results.length);
+          $("#high_priority").html(data.d.results.length);
+        },
+        error: function(data, errorCode, errorMessage) {
+            // error handling
+            $("#high_priority").html('Error');
+        }
+      });
+    </script>
+  </body>
+</html>
