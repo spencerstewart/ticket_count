@@ -1,0 +1,145 @@
+<!-- Ticket Count by Priority: BBMR
+Sorry my code sucks. Created by Spencer Stewart | spencer@spencer.tech
+Limitations: ugly code. only counts up to 100 tickets per category
+-->
+<h1>Ticket Count by Priority: BBMR</h1>
+<style media="screen">
+  .p_box {
+    margin: 2px;
+    /*border: 2px solid #aaa;*/
+    background-color: #eaeaea;
+    float: left;
+    width: 23%;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    text-align: center;
+  }
+  .priority {
+    color: #fff;
+    padding: 1em;
+  }
+  .critical {
+    background-color: #FF1C09;
+  }
+  .high {
+    background-color: #E87008;
+  }
+  .medium {
+    background-color: #FFC503;
+  }
+  .low {
+    background-color: #CDE808;
+  }
+  @media (max-width: 720px) {
+    .p_box {
+      width: 48%;
+    }
+  }
+  @media (max-width: 400px) {
+    .p_box {
+      width: 99%;
+    }
+  }
+</style>
+<div class="p_box">
+  <div class="critical priority">Critical Priority</div>
+  <p id="critical_priority">Loading...</p>
+</div>
+<div class="p_box">
+  <div class="high priority">High Priority</div>
+  <p id="high_priority">Loading...</p>
+</div>
+<div class="p_box">
+  <div class="medium priority">Medium Priority</div>
+  <p id="medium_priority">Loading...</p>
+</div>
+<div class="p_box">
+  <div class="low priority">Low Priority</div>
+  <p id="low_priority">Loading...</p>
+</div>
+<script>
+  var updateInterval = 10000; // How frequently to update ticket counts, in milliseconds
+  var locationFilter = "(startswith(Site0,'BBMR'))"
+  function updateTicketCount() {
+    $.ajax({
+      url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(1)')) and (OData__Status ne 'Closed') and " + locationFilter,
+      type: "GET",
+      // dataType: "json",
+      timeout: 5000,
+      headers: {
+          accept: "application/json;odata=verbose",
+          contentType: "application/json;odata=verbose"
+      },
+      success: function (data) {
+          // you can find the items in JSON format under data.results
+        $("#critical_priority").html(data.d.results.length);
+      },
+      error: function (data, errorCode, errorMessage) {
+          // error handling
+          $("#critical_priority").html('Error');
+      }
+    });
+    $.ajax({
+      url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(2)')) and (OData__Status ne 'Closed') and " + locationFilter,
+      type: "GET",
+      // dataType: "json",
+      timeout: 5000,
+      headers: {
+          accept: "application/json;odata=verbose",
+          contentType: "application/json;odata=verbose"
+      },
+      success: function (data) {
+          // you can find the items in JSON format under data.results
+        $("#high_priority").html(data.d.results.length);
+      },
+      error: function (data, errorCode, errorMessage) {
+          // error handling
+          $("#high_priority").html('Error');
+      }
+    });
+    $.ajax({
+      url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(3)')) and (OData__Status ne 'Closed') and " + locationFilter,
+      type: "GET",
+      // dataType: "json",
+      timeout: 5000,
+      headers: {
+          accept: "application/json;odata=verbose",
+          contentType: "application/json;odata=verbose"
+      },
+      success: function (data) {
+          // you can find the items in JSON format under data.results
+        var count = data.d.results.length;
+        if (count >= 100) {
+          $("#medium_priority").html("100+");
+        } else {
+          $("#medium_priority").html(count);
+        }
+      },
+      error: function (data, errorCode, errorMessage) {
+          // error handling
+          $("#medium_priority").html('Error');
+      }
+    });
+    $.ajax({
+      url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(4)')) and (OData__Status ne 'Closed') and " + locationFilter,
+      type: "GET",
+      // dataType: "json",
+      timeout: 5000,
+      headers: {
+          accept: "application/json;odata=verbose",
+          contentType: "application/json;odata=verbose"
+      },
+      success: function (data) {
+          // you can find the items in JSON format under data.results
+        $("#low_priority").html(data.d.results.length);
+      },
+      error: function (data, errorCode, errorMessage) {
+          // error handling
+          $("#low_priority").html('Error');
+      }
+    });
+  }
+  setInterval(updateTicketCount, updateInterval);
+  updateTicketCount();
+</script>
