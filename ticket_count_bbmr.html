@@ -59,7 +59,7 @@ Limitations: ugly code. only counts up to 100 tickets per category
   <p id="low_priority">Loading...</p>
 </div>
 <script>
-  var updateInterval = 10000; // How frequently to update ticket counts, in milliseconds
+  var updateInterval = 600000; // How frequently to update ticket counts, in milliseconds
   var locationFilter = "(startswith(Site0,'BBMR'))"
   function updateTicketCount() {
     $.ajax({
