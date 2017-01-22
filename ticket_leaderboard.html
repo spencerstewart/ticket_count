@@ -1,8 +1,8 @@
-<!-- Ticket Count by Priority: BBMR
+<!-- Monthly Ticket Leaderboard
 Sorry my code sucks. Created by Spencer Stewart | spencer@spencer.tech
-Limitations: ugly code. only counts up to 100 tickets per category
+Limitations: Only includes first 100 tickets (by ID) from the current month.
 -->
-<h1>Ticket Count by Priority: BBMR</h1>
+<h1>Monthly Ticket Leaderboard</h1>
 <style media="screen">
   .p_box {
     margin: 2px;
@@ -15,21 +15,24 @@ Limitations: ugly code. only counts up to 100 tickets per category
     font-weight: 800;
     text-align: center;
   }
-  .priority {
+  .name {
     color: #fff;
     padding: 1em;
   }
-  .critical {
+  .craig {
     background-color: #FF1C09;
   }
-  .high {
+  .ben {
     background-color: #E87008;
   }
-  .medium {
+  .mike {
     background-color: #FFC503;
   }
-  .low {
+  .roger {
     background-color: #CDE808;
+  }
+  .spencer {
+    background-color: #2262c9;
   }
   @media (max-width: 720px) {
     .p_box {
@@ -43,27 +46,41 @@ Limitations: ugly code. only counts up to 100 tickets per category
   }
 </style>
 <div class="p_box">
-  <div class="critical priority">Critical Priority</div>
-  <p id="critical_priority">Loading...</p>
+  <div class="craig name">Craig Lindstrom</div>
+  <p id="clindstrom">Loading...</p>
 </div>
 <div class="p_box">
-  <div class="high priority">High Priority</div>
-  <p id="high_priority">Loading...</p>
+  <div class="ben name">Ben Brissey</div>
+  <p id="bbrissey">Loading...</p>
 </div>
 <div class="p_box">
-  <div class="medium priority">Medium Priority</div>
-  <p id="medium_priority">Loading...</p>
+  <div class="mike name">Mike Mossman</div>
+  <p id="mmossman">Loading...</p>
 </div>
 <div class="p_box">
-  <div class="low priority">Low Priority</div>
-  <p id="low_priority">Loading...</p>
+  <div class="roger name">Roger Vieau</div>
+  <p id="rvieau">Loading...</p>
+</div>
+<div class="p_box">
+  <div class="spencer name">Spencer Stewart</div>
+  <p id="sstewart">Loading...</p>
 </div>
 <script>
   var updateInterval = 600000; // How frequently to update ticket counts, in milliseconds
-  var locationFilter = "(startswith(Site0,'BBMR'))"
+  var locationFilter = "(startswith(Site0,'BBMR'))";
+  function getTheFirst() {
+    var d = new Date();
+    d.setUTCDate(1);
+    d.setUTCHours(0);
+    d.setUTCMinutes(0);
+    d.setUTCSeconds(0);
+    d.setUTCMilliseconds(0);
+    return d.toISOString();
+  }
+  var startOfMonth = getTheFirst();
   function updateTicketCount() {
     $.ajax({
-      url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(1)')) and (OData__Status ne 'Closed') and " + locationFilter,
+      url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=*&$filter=(Modified ge datetime'" + startOfMonth + "') and (OData__Status eq 'Closed') and " + locationFilter,
       type: "GET",
       // dataType: "json",
       timeout: 5000,
@@ -73,70 +90,38 @@ Limitations: ugly code. only counts up to 100 tickets per category
       },
       success: function (data) {
           // you can find the items in JSON format under data.results
-        $("#critical_priority").html(data.d.results.length);
-      },
-      error: function (data, errorCode, errorMessage) {
-          // error handling
-          $("#critical_priority").html('Error');
-      }
-    });
-    $.ajax({
-      url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(2)')) and (OData__Status ne 'Closed') and " + locationFilter,
-      type: "GET",
-      // dataType: "json",
-      timeout: 5000,
-      headers: {
-          accept: "application/json;odata=verbose",
-          contentType: "application/json;odata=verbose"
-      },
-      success: function (data) {
-          // you can find the items in JSON format under data.results
-        $("#high_priority").html(data.d.results.length);
-      },
-      error: function (data, errorCode, errorMessage) {
-          // error handling
-          $("#high_priority").html('Error');
-      }
-    });
-    $.ajax({
-      url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(3)')) and (OData__Status ne 'Closed') and " + locationFilter,
-      type: "GET",
-      // dataType: "json",
-      timeout: 5000,
-      headers: {
-          accept: "application/json;odata=verbose",
-          contentType: "application/json;odata=verbose"
-      },
-      success: function (data) {
-          // you can find the items in JSON format under data.results
-        var count = data.d.results.length;
-        if (count >= 100) {
-          $("#medium_priority").html("100+");
-        } else {
-          $("#medium_priority").html(count);
+        var results = data.d.results;
+        var clindstrom = 0;
+        var bbrissey = 0;
+        var mmossman = 0;
+        var rvieau = 0;
+        var sstewart = 0;
+        // console.log(results[0].AssignedToId['results']);
+        for (var i = 0; i < results.length; i++) {
+          var result = results[i];
+          for (var j = 0; j < result.AssignedToId.results.length; j++) {
+            if ((result.AssignedToId.results[j] == 1055) || (result.AssignedToId.results[j] == 947)) {
+              clindstrom += 1;
+            } else if ((result.AssignedToId.results[j] == 1470) || (result.AssignedToId.results[j] == 1309)) {
+              bbrissey += 1;
+            } else if ((result.AssignedToId.results[j] == 1405) || (result.AssignedToId.results[j] == 1110)) {
+              mmossman += 1;
+            } else if ((result.AssignedToId.results[j] == 1466) || (result.AssignedToId.results[j] == 1280)) {
+              rvieau += 1;
+            } else if (result.AssignedToId.results[j] == 1493) {
+              sstewart += 1;
+            }
+          }
         }
+        $("#clindstrom").html(clindstrom);
+        $("#bbrissey").html(bbrissey);
+        $("#mmossman").html(mmossman);
+        $("#rvieau").html(rvieau);
+        $("#sstewart").html(sstewart);
       },
       error: function (data, errorCode, errorMessage) {
           // error handling
-          $("#medium_priority").html('Error');
-      }
-    });
-    $.ajax({
-      url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(4)')) and (OData__Status ne 'Closed') and " + locationFilter,
-      type: "GET",
-      // dataType: "json",
-      timeout: 5000,
-      headers: {
-          accept: "application/json;odata=verbose",
-          contentType: "application/json;odata=verbose"
-      },
-      success: function (data) {
-          // you can find the items in JSON format under data.results
-        $("#low_priority").html(data.d.results.length);
-      },
-      error: function (data, errorCode, errorMessage) {
-          // error handling
-          $("#low_priority").html('Error');
+          $("#clindstrom").html('Error');
       }
     });
   }
