@@ -77,10 +77,11 @@ Limitations: Only includes first 100 tickets (by ID) from the current month.
     d.setUTCMilliseconds(0);
     return d.toISOString();
   }
+  // http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=*&(OData__Status eq 'Closed')
   var startOfMonth = getTheFirst();
   function updateTicketCount() {
     $.ajax({
-      url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=*&$filter=(Modified ge datetime'" + startOfMonth + "') and (OData__Status eq 'Closed') and " + locationFilter,
+      url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$top=300&select=*&$filter=(Modified ge datetime'" + startOfMonth + "') and (OData__Status eq 'Closed') and " + locationFilter,
       type: "GET",
       // dataType: "json",
       timeout: 5000,
@@ -101,7 +102,7 @@ Limitations: Only includes first 100 tickets (by ID) from the current month.
           var result = results[i];
           for (var j = 0; j < result.AssignedToId.results.length; j++) {
             if ((result.AssignedToId.results[j] == 1055) || (result.AssignedToId.results[j] == 947)) {
-              clindstrom += 1;
+              clindstrom += 3;
             } else if ((result.AssignedToId.results[j] == 1470) || (result.AssignedToId.results[j] == 1309)) {
               bbrissey += 1;
             } else if ((result.AssignedToId.results[j] == 1405) || (result.AssignedToId.results[j] == 1110)) {
@@ -122,6 +123,10 @@ Limitations: Only includes first 100 tickets (by ID) from the current month.
       error: function (data, errorCode, errorMessage) {
           // error handling
           $("#clindstrom").html('Error');
+          $("#bbrissey").html('Error');
+          $("#mmossman").html('Error');
+          $("#rvieau").html('Error');
+          $("#sstewart").html('Error');
       }
     });
   }
