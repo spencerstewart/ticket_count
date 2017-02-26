@@ -1,0 +1,694 @@
+<!-- This file includes the all resort ticket leaderboard and tickets by priority
+for both MMSA and BBMR -->
+<style media="screen">
+  h1 {
+    text-align: center;
+  }
+  .super-duper-container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .super-column {
+    width: 33%;
+  }
+  #leader-board {
+    width: 465px;
+  }
+</style>
+
+
+<div class="super-duper-container">
+  <div class="super-column" id="leader-board">
+    <!-- Monthly Ticket Leaderboard
+    Sorry my code sucks. Created by Spencer Stewart | spencer@spencer.tech
+    Limitations: Only includes first 100 tickets (by ID) from the current month.
+    -->
+    <!-- <script src="js/jquery-3.1.1.min.js" charset="utf-8"></script> -->
+    <h1>Monthly Ticket Leaderboard</h1>
+    <style media="screen">
+      .piste {
+        min-height: 50px;
+        min-width: 450px;
+        margin: 2px;
+        padding: 5px;
+        border: none;
+        border-radius: 5px;
+        float: left;
+        width: 23%;
+        color: #fff;
+        font-family: times, serif;
+        font-size: 22px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+      .super-container {
+        display: flex;
+        flex-direction: column;
+        max-width: 500px;
+        margin: auto;
+      }
+      .container {
+        display: flex;
+        align-items: center;
+      }
+      .icon {
+        padding: 5px;
+        margin-left: 0.5em;
+        background-color: #fefefe;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+      .black-diamond {
+        background-color: #111;
+      }
+      .blue-square {
+        background-color: #2828ff;
+      }
+      .green-circle {
+        background-color: green;
+      }
+      .names {
+        border-left: 1px #fff solid;
+        margin: 0 1em;
+        padding: 0 1em;
+      }
+      .bd-icon {
+         width: 20px;
+         height: 20px;
+         background: black;
+         margin: 9px 0 0 20px;
+         /* Rotate */
+         -webkit-transform: rotate(-45deg);
+         -moz-transform: rotate(-45deg);
+         -ms-transform: rotate(-45deg);
+         -o-transform: rotate(-45deg);
+         transform: rotate(-45deg);
+         /* Rotate Origin */
+         -webkit-transform-origin: 0 100%;
+         -moz-transform-origin: 0 100%;
+         -ms-transform-origin: 0 100%;
+         -o-transform-origin: 0 100%;
+         transform-origin: 0 100%;
+      }
+      .dbl-black {
+        display: flex;
+        flex-direction: row;
+        margin-bottom: 2px;
+      }
+      .bd-icon-small {
+        width: 15px;
+        height: 15px;
+      }
+      .bs-bd-icon {
+        margin-left: 15px;
+      }
+      .small-text {
+        color: #000;
+        font-size: .3em;
+      }
+      .bs-icon {
+        width: 30px;
+        height: 30px;
+        background: #2828ff;
+      }
+      .gc-icon {
+        width: 24px;
+        height: 24px;
+        margin: 3px;
+        background: green;
+        -moz-border-radius: 15px;
+        -webkit-border-radius: 15px;
+        border-radius: 15px;
+      }
+      @media (max-width: 720px) {
+        .piste {
+          width: 48%;
+        }
+      }
+      @media (max-width: 400px) {
+        .piste {
+          width: 99%;
+        }
+      }
+    </style>
+    <div class="super-container">
+      <div class="piste container black-diamond" id="container">
+        <div class="icon">
+          <div class="dbl-black">
+            <div class="bd-icon bd-icon-small"></div><div class="bd-icon bd-icon-small"></div>
+          </div>
+          <div class="small-text">Experts Only</div>
+        </div>
+        <div class="names" id="dbl-black-diamond">
+          Loading...
+        </div>
+      </div>
+      <div class="piste container black-diamond" id="container">
+        <div class="icon">
+          <div class="bd-icon"></div>
+        </div>
+        <div class="names" id="black-diamond">
+          Loading...
+        </div>
+      </div>
+      <div class="piste container blue-square" id="container">
+        <div class="icon">
+          <div class="bs-icon"><div class="bd-icon bs-bd-icon"></div></div>
+        </div>
+        <div class="names" id="blue-black-diamond">
+          Loading...
+        </div>
+      </div>
+      <div class="piste container blue-square" id="container">
+        <div class="icon">
+          <div class="bs-icon"></div>
+        </div>
+        <div class="names" id="blue-square">
+          Loading...
+        </div>
+      </div>
+      <div class="piste container green-circle" id="container">
+        <div class="icon">
+          <div class="bs-icon"><div class="gc-icon"></div></div>
+        </div>
+        <div class="names" id="blue-green-circle">
+          Loading...
+        </div>
+      </div>
+      <div class="piste container green-circle" id="container">
+        <div class="icon">
+          <div class="gc-icon"></div>
+        </div>
+        <div class="names" id="green-circle">
+          Loading...
+        </div>
+      </div>
+    </div>
+
+
+    <script>
+      // Configuration variables
+      var updateInterval = 600000; // How frequently to update ticket counts, in milliseconds
+      var startOfMonth = getTheFirst();
+      var employees = [
+        {
+          name: "Craig Lindstrom",
+          ids: [1055, 947],
+          count: 0
+        },
+        {
+          name: "Ben Brissey",
+          ids: [1470, 1309],
+          count: 0
+        },
+        {
+          name: "Mike Mossman",
+          ids: [1405, 1110],
+          count: 0
+        },
+        {
+          name: "Roger Vieau",
+          ids: [1466, 1280],
+          count: 0
+        },
+        {
+          name: "Spencer Stewart",
+          ids: [1493],
+          count: 0
+        },
+        {
+          name: "Matt Berman",
+          ids: [1153],
+          count: 0
+        },
+        {
+          name: "Randy Brodrick",
+          ids: [23],
+          count: 0
+        },
+        {
+          name: "Bruce Burton",
+          ids: [1],
+          count: 0
+        },
+        {
+          name: "David Childs",
+          ids: [177],
+          count: 0
+        },
+        {
+          name: "Matt Clausen",
+          ids: [462],
+          count: 0
+        },
+        {
+          name: "Casey Cordi",
+          ids: [828],
+          count: 0
+        },
+        {
+          name: "Ric Dean",
+          ids: [20],
+          count: 0
+        },
+        {
+          name: "James Delmarto",
+          ids: [687],
+          count: 0
+        },
+        {
+          name: "Jeff Donze",
+          ids: [95],
+          count: 0
+        },
+        {
+          name: "Sam Elachkar",
+          ids: [1403],
+          count: 0
+        },
+        {
+          name: "Morgan Faggianelli",
+          ids: [332],
+          count: 0
+        },
+        {
+          name: "Juan Garcia",
+          ids: [19],
+          count: 0
+        },
+        {
+          name: "Tom Keese",
+          ids: [202],
+          count: 0
+        },
+        {
+          name: "Chad Lawver",
+          ids: [1644],
+          count: 0
+        },
+        {
+          name: "Lea Martin",
+          ids: [103],
+          count: 0
+        },
+        {
+          name: "Michael Payne",
+          ids: [186],
+          count: 0
+        },
+        {
+          name: "Chris Robinette",
+          ids: [17],
+          count: 0
+        },
+        {
+          name: "Al Rubalcava",
+          ids: [262],
+          count: 0
+        },
+        {
+          name: "Michelle Selander",
+          ids: [282],
+          count: 0
+        },
+        {
+          name: "James Shoshone",
+          ids: [189],
+          count: 0
+        }
+      ];
+
+      // Returns 'counts' object with {emp ID: ticket count}
+      function updateTicketCount() {
+        $.ajax({
+          url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$top=600&select=AssignedToId&$filter=(Modified ge datetime'" + startOfMonth + "') and (OData__Status eq 'Closed')",
+          type: "GET",
+          dataType: "json",
+          timeout: 5000,
+          headers: {
+              accept: "application/json;odata=verbose",
+              contentType: "application/json;odata=verbose"
+          },
+          success: function (data) {
+            var counts = {}; // Empty object for counts.
+            var results = data.d.results;
+            for (var i = 0; i < results.length; i++) {
+              var result = results[i];
+              individualsAssigned = result.AssignedToId.results;
+              for (var j = 0; j < individualsAssigned.length; j++) {
+                var individual = individualsAssigned[j];
+                // Increment the count for that individual.
+                counts[individual] = counts[individual] ? counts[individual]+1 : 1;
+              }
+            }
+            assignCount(counts);
+            var sortedByCount = sortByCount();
+            updateHtml(sortedByCount);
+          },
+          error: function(data, errorCode, errorMessage) {
+            $("#container").html(errorMessage + errorCode);
+            console.log("MAJOR ERROR");
+          }
+        }); // END Ajax call
+      } // END getTicketCount();
+
+      // Loop through employees & assign tickets closed count
+      function assignCount(counts) {
+        for (var i = 0; i < employees.length; i++) {
+          var employeeIds = employees[i].ids;
+
+          // Loop through each employees' ID. Bear people have 2 IDs. Annoying.
+          for (var j = 0; j < employeeIds.length; j++) {
+            if (employeeIds[j] in counts) {
+              // Add the count for each ID associated with the employee.
+              employees[i].count += counts[employeeIds[j]];
+            }
+          } // End loop through IDs
+        } // End loop through employees
+      } // End assignCount
+
+      // Sort by greatest ticket count
+      function sortByCount() {
+        var sortedCount = employees.slice(0);
+        sortedCount.sort(function(a,b) {
+          return b.count - a.count;
+        });
+        return sortedCount;
+      }
+
+      function updateHtml(sortedCount) {
+        var dbdWinners = "", bdWinners = "", bbdWinners = "", bsWinners = "", bgcWinners = "", gcWinners = "";
+        for (var i = 0; i < sortedCount.length; i ++) {
+          if (sortedCount[i].count > 49) {
+            dbdWinners += "<div>" + sortedCount[i].name + ": " + sortedCount[i].count + "</div>";
+          } else if (sortedCount[i].count > 39) {
+            bdWinners += "<div>" + sortedCount[i].name + ": " + sortedCount[i].count + "</div>";
+          } else if (sortedCount[i].count > 29) {
+            bbdWinners += "<div>" + sortedCount[i].name + ": " + sortedCount[i].count + "</div>";
+          } else if (sortedCount[i].count > 19) {
+            bsWinners += "<div>" + sortedCount[i].name + ": " + sortedCount[i].count + "</div>";
+          } else if (sortedCount[i].count > 9) {
+            bgcWinners += "<div>" + sortedCount[i].name + ": " + sortedCount[i].count + "</div>";
+          } else if (sortedCount[i].count > 0) {
+            gcWinners += "<div>" + sortedCount[i].name + ": " + sortedCount[i].count + "</div>";
+          }
+        }
+        $("#dbl-black-diamond").html(dbdWinners);
+        $("#black-diamond").html(bdWinners);
+        $("#blue-black-diamond").html(bbdWinners);
+        $("#blue-square").html(bsWinners);
+        $("#blue-green-circle").html(bgcWinners);
+        $("#green-circle").html(gcWinners);
+      }
+
+
+      // Get the datetime for the beginning of the month
+      function getTheFirst() {
+        var d = new Date();
+        d.setUTCDate(1);
+        d.setUTCHours(0);
+        d.setUTCMinutes(0);
+        d.setUTCSeconds(0);
+        d.setUTCMilliseconds(0);
+        return d.toISOString();
+      }
+
+      setInterval(updateTicketCount, updateInterval);
+      updateTicketCount();
+    </script>
+
+  </div>
+
+  <div class="super-column" id="mmsa-tickets">
+    <!-- Ticket Count by Priority: MMSA
+    Sorry my code sucks. Created by Spencer Stewart | spencer@spencer.tech
+    Limitations: ugly code. only counts up to 100 tickets per category
+    -->
+    <head>
+      <script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
+    </head>
+
+    <h1>Ticket Count by Priority: MMSA</h1>
+    <style media="screen">
+      .container {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .p_box {
+        margin: 2px;
+        /*border: 2px solid #aaa;*/
+        background-color: #eaeaea;
+        width: 23%;
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        font-weight: 800;
+        text-align: center;
+      }
+      .priority {
+        color: #fff;
+        padding: 1em;
+      }
+      .critical {
+        background-color: #FF1C09;
+      }
+      .high {
+        background-color: #E87008;
+      }
+      .medium {
+        background-color: #FFC503;
+      }
+      .low {
+        background-color: #CDE808;
+      }
+      @media (max-width: 720px) {
+        .p_box {
+          width: 48%;
+        }
+      }
+      @media (max-width: 400px) {
+        .p_box {
+          width: 99%;
+        }
+      }
+    </style>
+    <div class="container">
+      <div class="p_box">
+        <div class="critical priority">Critical Priority</div>
+        <p id="critical_priority">Loading...</p>
+      </div>
+      <div class="p_box">
+        <div class="high priority">High Priority</div>
+        <p id="high_priority">Loading...</p>
+      </div>
+      <div class="p_box">
+        <div class="medium priority">Medium Priority</div>
+        <p id="medium_priority">Loading...</p>
+      </div>
+      <div class="p_box">
+        <div class="low priority">Low Priority</div>
+        <p id="low_priority">Loading...</p>
+      </div>
+      <script>
+        var updateInterval = 60000; // How frequently to update ticket counts, in milliseconds
+        function updateTicketCount() {
+          $.ajax({
+            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(1)')) and (OData__Status ne 'Closed') and (Site0 ne 'BBMR - Snow Summit') and (Site0 ne 'BBMR - Bear Mountain')",
+            type: "GET",
+            // dataType: "json",
+            timeout: 5000,
+            headers: {
+                accept: "application/json;odata=verbose",
+                contentType: "application/json;odata=verbose"
+            },
+            success: function (data) {
+                // you can find the items in JSON format under data.results
+              console.log(data.d.results.length);
+              $("#critical_priority").html(data.d.results.length);
+            },
+            error: function (data, errorCode, errorMessage) {
+                // error handling
+                $("#critical_priority").html('Error');
+            }
+          });
+          $.ajax({
+            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(2)')) and (OData__Status ne 'Closed') and (Site0 ne 'BBMR - Snow Summit') and (Site0 ne 'BBMR - Bear Mountain')",
+            type: "GET",
+            // dataType: "json",
+            timeout: 5000,
+            headers: {
+                accept: "application/json;odata=verbose",
+                contentType: "application/json;odata=verbose"
+            },
+            success: function (data) {
+                // you can find the items in JSON format under data.results
+              console.log(data.d.results.length);
+              $("#high_priority").html(data.d.results.length);
+            },
+            error: function (data, errorCode, errorMessage) {
+                // error handling
+                $("#high_priority").html('Error');
+            }
+          });
+          $.ajax({
+            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(3)')) and (OData__Status ne 'Closed') and (Site0 ne 'BBMR - Snow Summit') and (Site0 ne 'BBMR - Bear Mountain')",
+            type: "GET",
+            // dataType: "json",
+            timeout: 5000,
+            headers: {
+                accept: "application/json;odata=verbose",
+                contentType: "application/json;odata=verbose"
+            },
+            success: function (data) {
+                // you can find the items in JSON format under data.results
+              var count = data.d.results.length;
+              if (count >= 100) {
+                $("#medium_priority").html("100+");
+              } else {
+                $("#medium_priority").html(count);
+              }
+            },
+            error: function (data, errorCode, errorMessage) {
+                // error handling
+                $("#medium_priority").html('Error');
+            }
+          });
+          $.ajax({
+            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(4)')) and (OData__Status ne 'Closed') and (Site0 ne 'BBMR - Snow Summit') and (Site0 ne 'BBMR - Bear Mountain')",
+            type: "GET",
+            // dataType: "json",
+            timeout: 5000,
+            headers: {
+                accept: "application/json;odata=verbose",
+                contentType: "application/json;odata=verbose"
+            },
+            success: function (data) {
+                // you can find the items in JSON format under data.results
+              console.log(data.d.results.length);
+              $("#low_priority").html(data.d.results.length);
+            },
+            error: function (data, errorCode, errorMessage) {
+                // error handling
+                $("#low_priority").html('Error');
+            }
+          });
+        }
+        setInterval(updateTicketCount, updateInterval);
+        updateTicketCount();
+      </script>
+    </div>
+  </div>
+
+
+  <div class="super-column" id="bbmr-tickets">
+    <!-- Ticket Count by Priority: BBMR
+    Written by Spencer Stewart | spencer@spencer.tech -->
+    <h1>Ticket Count by Priority</h1>
+    <div class="container">
+      <div class="p_box">
+        <div class="critical priority">Critical Priority</div>
+        <p id="bbmr_critical_priority">Loading...</p>
+      </div>
+      <div class="p_box">
+        <div class="high priority">High Priority</div>
+        <p id="bbmr_high_priority">Loading...</p>
+      </div>
+      <div class="p_box">
+        <div class="medium priority">Medium Priority</div>
+        <p id="bbmr_medium_priority">Loading...</p>
+      </div>
+      <div class="p_box">
+        <div class="low priority">Low Priority</div>
+        <p id="bbmr_low_priority">Loading...</p>
+      </div>
+      <script>
+        var updateInterval = 60000; // How frequently to update the ticket count.
+        function updateTicketCount() {
+          $.ajax({
+            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(1)')) and (OData__Status ne 'Closed') and (startswith(Site0,'BBMR'))",
+            type: "GET",
+            // dataType: "json",
+            timeout: 3000,
+            headers: {
+                accept: "application/json;odata=verbose",
+                contentType: "application/json;odata=verbose"
+            },
+            success: function(data) {
+                // you can find the items in JSON format under data.results
+              console.log(data.d.results);
+              console.log(data.d.results.length);
+              $("#bbmr_critical_priority").html(data.d.results.length);
+            },
+            error: function(data, errorCode, errorMessage) {
+                // error handling
+                $("#bbmr_critical_priority").html('Error');
+            }
+          });
+          $.ajax({
+            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(2)')) and (OData__Status ne 'Closed') and (startswith(Site0,'BBMR'))",
+            type: "GET",
+            // dataType: "json",
+            timeout: 3000,
+            headers: {
+                accept: "application/json;odata=verbose",
+                contentType: "application/json;odata=verbose"
+            },
+            success: function(data) {
+                // you can find the items in JSON format under data.results
+              console.log(data.d.results);
+              console.log(data.d.results.length);
+              $("#bbmr_high_priority").html(data.d.results.length);
+            },
+            error: function(data, errorCode, errorMessage) {
+                // error handling
+                $("#bbmr_high_priority").html('Error');
+            }
+          });
+          $.ajax({
+            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(3)')) and (OData__Status ne 'Closed') and (startswith(Site0,'BBMR'))",
+            type: "GET",
+            // dataType: "json",
+            timeout: 3000,
+            headers: {
+                accept: "application/json;odata=verbose",
+                contentType: "application/json;odata=verbose"
+            },
+            success: function(data) {
+                // you can find the items in JSON format under data.results
+              console.log(data.d.results);
+              console.log(data.d.results.length);
+              $("#bbmr_medium_priority").html(data.d.results.length);
+            },
+            error: function(data, errorCode, errorMessage) {
+                // error handling
+                $("#bbmr_medium_priority").html('Error');
+            }
+          });
+          $.ajax({
+            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(4)')) and (OData__Status ne 'Closed') and (startswith(Site0,'BBMR'))",
+            type: "GET",
+            // dataType: "json",
+            timeout: 3000,
+            headers: {
+                accept: "application/json;odata=verbose",
+                contentType: "application/json;odata=verbose"
+            },
+            success: function(data) {
+                // you can find the items in JSON format under data.results
+              console.log(data.d.results);
+              console.log(data.d.results.length);
+              $("#bbmr_low_priority").html(data.d.results.length);
+            },
+            error: function(data, errorCode, errorMessage) {
+                // error handling
+                $("#bbmr_low_priority").html('Error');
+            }
+          });
+        }
+        setInterval(updateTicketCount, updateInterval);
+        updateTicketCount();
+      </script>
+    </div>
+  </div>
+</div>

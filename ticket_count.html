@@ -2,11 +2,14 @@
 Written by Spencer Stewart | spencer@spencer.tech -->
 <h1>Ticket Count by Priority</h1>
 <style media="screen">
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+  }
   .p_box {
     margin: 2px;
     /*border: 2px solid #aaa;*/
     background-color: #eaeaea;
-    float: left;
     width: 23%;
     font-family: Arial, sans-serif;
     font-size: 16px;
@@ -40,106 +43,108 @@ Written by Spencer Stewart | spencer@spencer.tech -->
     }
   }
 </style>
-<div class="p_box">
-  <div class="critical priority">Critical Priority</div>
-  <p id="critical_priority">Loading...</p>
+<div class="container">
+  <div class="p_box">
+    <div class="critical priority">Critical Priority</div>
+    <p id="critical_priority">Loading...</p>
+  </div>
+  <div class="p_box">
+    <div class="high priority">High Priority</div>
+    <p id="high_priority">Loading...</p>
+  </div>
+  <div class="p_box">
+    <div class="medium priority">Medium Priority</div>
+    <p id="medium_priority">Loading...</p>
+  </div>
+  <div class="p_box">
+    <div class="low priority">Low Priority</div>
+    <p id="low_priority">Loading...</p>
+  </div>
+  <script>
+    var updateInterval = 60000; // How frequently to update the ticket count.
+    function updateTicketCount() {
+      $.ajax({
+        url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(1)')) and (OData__Status ne 'Closed') and (startswith(Site0,'BBMR'))",
+        type: "GET",
+        // dataType: "json",
+        timeout: 3000,
+        headers: {
+            accept: "application/json;odata=verbose",
+            contentType: "application/json;odata=verbose"
+        },
+        success: function(data) {
+            // you can find the items in JSON format under data.results
+          console.log(data.d.results);
+          console.log(data.d.results.length);
+          $("#critical_priority").html(data.d.results.length);
+        },
+        error: function(data, errorCode, errorMessage) {
+            // error handling
+            $("#critical_priority").html('Error');
+        }
+      });
+      $.ajax({
+        url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(2)')) and (OData__Status ne 'Closed') and (startswith(Site0,'BBMR'))",
+        type: "GET",
+        // dataType: "json",
+        timeout: 3000,
+        headers: {
+            accept: "application/json;odata=verbose",
+            contentType: "application/json;odata=verbose"
+        },
+        success: function(data) {
+            // you can find the items in JSON format under data.results
+          console.log(data.d.results);
+          console.log(data.d.results.length);
+          $("#high_priority").html(data.d.results.length);
+        },
+        error: function(data, errorCode, errorMessage) {
+            // error handling
+            $("#high_priority").html('Error');
+        }
+      });
+      $.ajax({
+        url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(3)')) and (OData__Status ne 'Closed') and (startswith(Site0,'BBMR'))",
+        type: "GET",
+        // dataType: "json",
+        timeout: 3000,
+        headers: {
+            accept: "application/json;odata=verbose",
+            contentType: "application/json;odata=verbose"
+        },
+        success: function(data) {
+            // you can find the items in JSON format under data.results
+          console.log(data.d.results);
+          console.log(data.d.results.length);
+          $("#medium_priority").html(data.d.results.length);
+        },
+        error: function(data, errorCode, errorMessage) {
+            // error handling
+            $("#medium_priority").html('Error');
+        }
+      });
+      $.ajax({
+        url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(4)')) and (OData__Status ne 'Closed') and (startswith(Site0,'BBMR'))",
+        type: "GET",
+        // dataType: "json",
+        timeout: 3000,
+        headers: {
+            accept: "application/json;odata=verbose",
+            contentType: "application/json;odata=verbose"
+        },
+        success: function(data) {
+            // you can find the items in JSON format under data.results
+          console.log(data.d.results);
+          console.log(data.d.results.length);
+          $("#low_priority").html(data.d.results.length);
+        },
+        error: function(data, errorCode, errorMessage) {
+            // error handling
+            $("#low_priority").html('Error');
+        }
+      });
+    }
+    setInterval(updateTicketCount, updateInterval);
+    updateTicketCount();
+  </script>
 </div>
-<div class="p_box">
-  <div class="high priority">High Priority</div>
-  <p id="high_priority">Loading...</p>
-</div>
-<div class="p_box">
-  <div class="medium priority">Medium Priority</div>
-  <p id="medium_priority">Loading...</p>
-</div>
-<div class="p_box">
-  <div class="low priority">Low Priority</div>
-  <p id="low_priority">Loading...</p>
-</div>
-<script>
-  var updateInterval = 3000; // How frequently to update the ticket count.
-  function updateTicketCount() {
-    $.ajax({
-      url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(1)')) and (OData__Status ne 'Closed') and (startswith(Site0,'BBMR'))",
-      type: "GET",
-      // dataType: "json",
-      timeout: 3000,
-      headers: {
-          accept: "application/json;odata=verbose",
-          contentType: "application/json;odata=verbose"
-      },
-      success: function(data) {
-          // you can find the items in JSON format under data.results
-        console.log(data.d.results);
-        console.log(data.d.results.length);
-        $("#critical_priority").html(data.d.results.length);
-      },
-      error: function(data, errorCode, errorMessage) {
-          // error handling
-          $("#critical_priority").html('Error');
-      }
-    });
-    $.ajax({
-      url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(2)')) and (OData__Status ne 'Closed') and (startswith(Site0,'BBMR'))",
-      type: "GET",
-      // dataType: "json",
-      timeout: 3000,
-      headers: {
-          accept: "application/json;odata=verbose",
-          contentType: "application/json;odata=verbose"
-      },
-      success: function(data) {
-          // you can find the items in JSON format under data.results
-        console.log(data.d.results);
-        console.log(data.d.results.length);
-        $("#high_priority").html(data.d.results.length);
-      },
-      error: function(data, errorCode, errorMessage) {
-          // error handling
-          $("#high_priority").html('Error');
-      }
-    });
-    $.ajax({
-      url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(3)')) and (OData__Status ne 'Closed') and (startswith(Site0,'BBMR'))",
-      type: "GET",
-      // dataType: "json",
-      timeout: 3000,
-      headers: {
-          accept: "application/json;odata=verbose",
-          contentType: "application/json;odata=verbose"
-      },
-      success: function(data) {
-          // you can find the items in JSON format under data.results
-        console.log(data.d.results);
-        console.log(data.d.results.length);
-        $("#medium_priority").html(data.d.results.length);
-      },
-      error: function(data, errorCode, errorMessage) {
-          // error handling
-          $("#medium_priority").html('Error');
-      }
-    });
-    $.ajax({
-      url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(4)')) and (OData__Status ne 'Closed') and (startswith(Site0,'BBMR'))",
-      type: "GET",
-      // dataType: "json",
-      timeout: 3000,
-      headers: {
-          accept: "application/json;odata=verbose",
-          contentType: "application/json;odata=verbose"
-      },
-      success: function(data) {
-          // you can find the items in JSON format under data.results
-        console.log(data.d.results);
-        console.log(data.d.results.length);
-        $("#low_priority").html(data.d.results.length);
-      },
-      error: function(data, errorCode, errorMessage) {
-          // error handling
-          $("#low_priority").html('Error');
-      }
-    });
-  }
-  setInterval(updateTicketCount, updateInterval);
-  updateTicketCount();
-</script>
