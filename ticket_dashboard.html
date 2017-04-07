@@ -505,13 +505,13 @@ for both MMSA and BBMR -->
       </div>
       <script>
         var updateInterval = 60000; // How frequently to update ticket counts, in milliseconds
-        var priorities = {
-          "#critical_priority":"(1) Critical",
-          "#high_priority":"(2) High",
-          "#medium_priority":"(3) Medium",
-          "#low_priority":"(4) Low"
-        };
         function updateTicketCount() {
+          var mmsaPriorities = {
+            "#critical_priority":"(1) Critical",
+            "#high_priority":"(2) High",
+            "#medium_priority":"(3) Medium",
+            "#low_priority":"(4) Low"
+          };
           $.ajax({
             url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$top200&select=Title,Priority,OData__Status&$filter=(OData__Status ne 'Closed') and (Site0 ne 'BBMR - Snow Summit') and (Site0 ne 'BBMR - Bear Mountain')",
             type: "GET",
@@ -530,15 +530,15 @@ for both MMSA and BBMR -->
                   var priority = result.Priority;
                   priorityCounts[priority] = priorityCounts[priority] ? priorityCounts[priority]+1 : 1;
                 }
-                for (var priority in priorities) {
-                  var priorityString = priorities[priority];
+                for (var priority in mmsaPriorities) {
+                  var priorityString = mmsaPriorities[priority];
                   priorityCounts[priorityString] = priorityCounts[priorityString] ? priorityCounts[priorityString] : 0;
                   $(priority).html(priorityCounts[priorityString]);
                 }
             },
             error: function (data, errorCode, errorMessage) {
                 // error handling
-                for (var priority in priorities) {
+                for (var priority in mmsaPriorities) {
                   $(priority).html('Error');
                 }
             }
@@ -574,9 +574,16 @@ for both MMSA and BBMR -->
       </div>
       <script>
         var updateInterval = 60000; // How frequently to update the ticket count.
+
         function updateTicketCount() {
+          var bbmrPriorities = {
+            "#bbmr_critical_priority":"(1) Critical",
+            "#bbmr_high_priority":"(2) High",
+            "#bbmr_medium_priority":"(3) Medium",
+            "#bbmr_low_priority":"(4) Low"
+          };
           $.ajax({
-            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(1)')) and (OData__Status ne 'Closed') and (startswith(Site0,'BBMR'))",
+            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(OData__Status ne 'Closed') and (startswith(Site0,'BBMR'))",
             type: "GET",
             // dataType: "json",
             timeout: 3000,
@@ -584,67 +591,26 @@ for both MMSA and BBMR -->
                 accept: "application/json;odata=verbose",
                 contentType: "application/json;odata=verbose"
             },
-            success: function(data) {
+            success: function (data) {
                 // you can find the items in JSON format under data.results
-              $("#bbmr_critical_priority").html(data.d.results.length);
+                var priorityCounts = {};
+                var results = data.d.results;
+                for (var i = 0; i < results.length; i++) {
+                  var result = results[i];
+                  var priority = result.Priority;
+                  priorityCounts[priority] = priorityCounts[priority] ? priorityCounts[priority]+1 : 1;
+                }
+                for (var priority in bbmrPriorities) {
+                  var priorityString = bbmrPriorities[priority];
+                  priorityCounts[priorityString] = priorityCounts[priorityString] ? priorityCounts[priorityString] : 0;
+                  $(priority).html(priorityCounts[priorityString]);
+                }
             },
-            error: function(data, errorCode, errorMessage) {
+            error: function (data, errorCode, errorMessage) {
                 // error handling
-                $("#bbmr_critical_priority").html('Error');
-            }
-          });
-          $.ajax({
-            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(2)')) and (OData__Status ne 'Closed') and (startswith(Site0,'BBMR'))",
-            type: "GET",
-            // dataType: "json",
-            timeout: 3000,
-            headers: {
-                accept: "application/json;odata=verbose",
-                contentType: "application/json;odata=verbose"
-            },
-            success: function(data) {
-                // you can find the items in JSON format under data.results
-              $("#bbmr_high_priority").html(data.d.results.length);
-            },
-            error: function(data, errorCode, errorMessage) {
-                // error handling
-                $("#bbmr_high_priority").html('Error');
-            }
-          });
-          $.ajax({
-            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(3)')) and (OData__Status ne 'Closed') and (startswith(Site0,'BBMR'))",
-            type: "GET",
-            // dataType: "json",
-            timeout: 3000,
-            headers: {
-                accept: "application/json;odata=verbose",
-                contentType: "application/json;odata=verbose"
-            },
-            success: function(data) {
-                // you can find the items in JSON format under data.results
-              $("#bbmr_medium_priority").html(data.d.results.length);
-            },
-            error: function(data, errorCode, errorMessage) {
-                // error handling
-                $("#bbmr_medium_priority").html('Error');
-            }
-          });
-          $.ajax({
-            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(startswith(Priority,'(4)')) and (OData__Status ne 'Closed') and (startswith(Site0,'BBMR'))",
-            type: "GET",
-            // dataType: "json",
-            timeout: 3000,
-            headers: {
-                accept: "application/json;odata=verbose",
-                contentType: "application/json;odata=verbose"
-            },
-            success: function(data) {
-                // you can find the items in JSON format under data.results
-              $("#bbmr_low_priority").html(data.d.results.length);
-            },
-            error: function(data, errorCode, errorMessage) {
-                // error handling
-                $("#bbmr_low_priority").html('Error');
+                for (var priority in bbmrPriorities) {
+                  $(priority).html('Error');
+                }
             }
           });
         }
