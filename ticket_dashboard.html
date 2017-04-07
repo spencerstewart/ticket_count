@@ -505,8 +505,49 @@ for both MMSA and BBMR -->
         <div class="low priority">Low Priority</div>
         <p id="low_priority">Loading...</p>
       </div>
+      <div class="">
+        <h1>MMSA Tickets by Business Unit</h1>
+        <h4>Last 30 days</h4>
+        <canvas id="mmsaBusUnit" width="400" height="400"></canvas>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="super-column" id="bbmr-tickets">
+    <!-- Ticket Count by Priority: BBMR
+    Written by Spencer Stewart | spencer@spencer.tech -->
+    <h1>Ticket Count by Priority</h1>
+    <div class="container">
+      <div class="p_box">
+        <div class="critical priority">Critical Priority</div>
+        <p id="bbmr_critical_priority">Loading...</p>
+      </div>
+      <div class="p_box">
+        <div class="high priority">High Priority</div>
+        <p id="bbmr_high_priority">Loading...</p>
+      </div>
+      <div class="p_box">
+        <div class="medium priority">Medium Priority</div>
+        <p id="bbmr_medium_priority">Loading...</p>
+      </div>
+      <div class="p_box">
+        <div class="low priority">Low Priority</div>
+        <p id="bbmr_low_priority">Loading...</p>
+      </div>
+      <div class="">
+        <h1>Tickets by Business Unit</h1>
+        <h4>Last 30 days</h4>
+        <canvas id="bbmrBusUnit" width="400" height="400"></canvas>
+      </div>
       <script>
         var updateInterval = 60000; // How frequently to update ticket counts, in milliseconds
+        var topCount = 7; // How many rankings to have. ie. top 3, top 5 closers, etc.
+        var mmsaLocationFilter = "(Site0 ne 'BBMR - Snow Summit') and (Site0 ne 'BBMR - Bear Mountain')"
+        var bbmrLocationFilter = "(startswith(Site0,'BBMR'))";
+
+        // Ticket Count by Priority
         function updateTicketCount() {
           var mmsaPriorities = {
             "#critical_priority":"(1) Critical",
@@ -546,41 +587,53 @@ for both MMSA and BBMR -->
             }
           });
         }
+
+        // Ticket Count by Bus Unit, Created in Last 30 Days
+        // Params: location filter (MMSA or BBMR) and the id of the canvas html element
+        function updateBusUnitCount(locationFilter, chartId) {
+          $.ajax({
+            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$top=300&select=AssignedToId&$filter=(Created ge datetime'" + thirtyDaysAgo + "') and " + locationFilter,
+            type: "GET",
+            dataType: "json",
+            timeout: 5000,
+            headers: {
+                accept: "application/json;odata=verbose",
+                contentType: "application/json;odata=verbose"
+            },
+            success: function (data) {
+              var busUnitCounts = {};
+              var results = data.d.results;
+              for (var i = 0; i < results.length; i++) {
+                var result = results[i];
+                var busUnit = result.Business_x0020_Unit;
+                busUnitCounts[busUnit] = busUnitCounts[busUnit] ? busUnitCounts[busUnit]+1 : 1;
+              }
+
+              // Sort the business units
+              var sortedBusUnit = Object.keys(busUnitCounts).sort(function(a,b){return busUnitCounts[b]-busUnitCounts[a]});
+              var slicedBusUnit = sortedBusUnit.slice(0, topCount);
+              var otherCount = sortedBusUnit.length - topCount;
+              slicedBusUnit.push("All Others (" + otherCount + ")");
+              var sortedBusUnitCount = Object.values(busUnitCounts).sort(function(a,b){return b -a });
+              var slicedBusUnitCount = sortedBusUnitCount.slice(0, topCount);
+              var theOthers = sortedBusUnitCount.slice(topCount, sortedBusUnitCount.length);
+              var sumTheOthers = theOthers.reduce(function(a,b){return a+b;});
+              slicedBusUnitCount.push(sumTheOthers);
+              makeChart(slicedBusUnit, slicedBusUnitCount, chartId);
+            },
+            error: function(data, errorCode, errorMessage) {
+              $("#container").html(errorMessage + errorCode);
+              console.log("MAJOR ERROR");
+            }
+          }); // END Ajax call
+        } // END updateBusUnitCount();
+
         setInterval(updateTicketCount, updateInterval);
+        setInterval(updateBusUnitCount(mmsaLocationFilter, "mmsaBusUnit"), updateInterval);
+        setInterval(updateBusUnitCount(bbmrLocationFilter, "bbmrBusUnit"), updateInterval);
         updateTicketCount();
-      </script>
-    </div>
-  </div>
-
-
-  <div class="super-column" id="bbmr-tickets">
-    <!-- Ticket Count by Priority: BBMR
-    Written by Spencer Stewart | spencer@spencer.tech -->
-    <h1>Ticket Count by Priority</h1>
-    <div class="container">
-      <div class="p_box">
-        <div class="critical priority">Critical Priority</div>
-        <p id="bbmr_critical_priority">Loading...</p>
-      </div>
-      <div class="p_box">
-        <div class="high priority">High Priority</div>
-        <p id="bbmr_high_priority">Loading...</p>
-      </div>
-      <div class="p_box">
-        <div class="medium priority">Medium Priority</div>
-        <p id="bbmr_medium_priority">Loading...</p>
-      </div>
-      <div class="p_box">
-        <div class="low priority">Low Priority</div>
-        <p id="bbmr_low_priority">Loading...</p>
-      </div>
-      <div class="">
-        <h1>Tickets by Business Unit, Last 30 days</h1>
-        <canvas id="bbmrBusUnit" width="400" height="400"></canvas>
-      </div>
-      <script>
-        var updateInterval = 60000; // How frequently to update the ticket count.
-        var topCount = 7; // How many rankings to have. ie. top 3, top 5 closers, etc.
+        updateBusUnitCount(mmsaLocationFilter, "mmsaBusUnit");
+        updateBusUnitCount(bbmrLocationFilter, "bbmrBusUnit");
 
         // Ticket Count by Priority
         function updateTicketCount() {
@@ -623,74 +676,31 @@ for both MMSA and BBMR -->
           });
         }
 
-        // Ticket Count by Bus Unit, Created in Last 30 Days
-        function updateBusUnitCount() {
-          $.ajax({
-            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$top=300&select=AssignedToId&$filter=(Created ge datetime'" + thirtyDaysAgo + "') and (startswith(Site0,'BBMR'))",
-            type: "GET",
-            dataType: "json",
-            timeout: 5000,
-            headers: {
-                accept: "application/json;odata=verbose",
-                contentType: "application/json;odata=verbose"
-            },
-            success: function (data) {
-              var busUnitCounts = {};
-              var results = data.d.results;
-              for (var i = 0; i < results.length; i++) {
-                var result = results[i];
-                var busUnit = result.Business_x0020_Unit;
-                busUnitCounts[busUnit] = busUnitCounts[busUnit] ? busUnitCounts[busUnit]+1 : 1;
-              }
 
-              // Sort the business units
-              var sortedBusUnit = Object.keys(busUnitCounts).sort(function(a,b){return busUnitCounts[b]-busUnitCounts[a]});
-              var slicedBusUnit = sortedBusUnit.slice(0, topCount);
-              var otherCount = sortedBusUnit.length - topCount;
-              slicedBusUnit.push("All Others (" + otherCount + ")");
-              var sortedBusUnitCount = Object.values(busUnitCounts).sort(function(a,b){return b -a });
-              var slicedBusUnitCount = sortedBusUnitCount.slice(0, topCount);
-              var theOthers = sortedBusUnitCount.slice(topCount, sortedBusUnitCount.length);
-              var sumTheOthers = theOthers.reduce(function(a,b){return a+b;});
-              slicedBusUnitCount.push(sumTheOthers);
-              makeChart(slicedBusUnit, slicedBusUnitCount);
-            },
-            error: function(data, errorCode, errorMessage) {
-              $("#container").html(errorMessage + errorCode);
-              console.log("MAJOR ERROR");
-            }
-          }); // END Ajax call
-        } // END getTicketCount();
-
-        setInterval(updateTicketCount, updateInterval);
-        setInterval(updateBusUnitCount, updateInterval);
-        updateTicketCount();
-        updateBusUnitCount();
-
-        function makeChart(labels, data) {
-          var ctx = document.getElementById("bbmrBusUnit");
+        function makeChart(labels, data, elementID) {
+          var ctx = document.getElementById(elementID);
           var myChart = new Chart(ctx, {
               type: 'pie',
               data: {
-                  labels: labels,
-                  datasets: [{
-                      data: data,
-                      backgroundColor: [
-                                      "#FF1C09",
-                                      "#E87008",
-                                      "#FFC503",
-                                      "#7de808",
-                                      "#4fbb0c",
-                                      "#0c8c2d",
-                                      "#0c7a8c"
-                                  ],
-                  }]
+                labels: labels,
+                datasets: [{
+                  data: data,
+                  backgroundColor: [
+                    "#FF1C09",
+                    "#E87008",
+                    "#FFC503",
+                    "#7de808",
+                    "#4fbb0c",
+                    "#0c8c2d",
+                    "#0c7a8c"
+                  ],
+                }]
               },
               options: {
-
+                rotation:280
               }
-                });
-            }
+            });
+          }
       </script>
     </div>
   </div>
