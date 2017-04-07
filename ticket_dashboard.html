@@ -223,14 +223,9 @@ for both MMSA and BBMR -->
         </div>
       </div>
     </div>
-
-
-
-
   </div>
 
   <div class="super-column" id="mmsa-tickets">
-
     <h1>Ticket Count by Priority: MMSA</h1>
     <div class="container">
       <div class="p_box">
@@ -254,7 +249,11 @@ for both MMSA and BBMR -->
         <h4>Last 30 days</h4>
         <canvas id="mmsaBusUnit" width="400" height="400"></canvas>
       </div>
-
+      <div class="pie-chart">
+        <h1>Tickets by Issue</h1>
+        <h4>Last 30 days</h4>
+        <canvas id="mmsaIssue" width="400" height="400"></canvas>
+      </div>
     </div>
   </div>
 
@@ -283,6 +282,11 @@ for both MMSA and BBMR -->
         <h4>Last 30 days</h4>
         <canvas id="bbmrBusUnit" width="400" height="400"></canvas>
       </div>
+      <div class="pie-chart">
+        <h1>Tickets by Issue</h1>
+        <h4>Last 30 days</h4>
+        <canvas id="bbmrIssue" width="400" height="400"></canvas>
+      </div>
 
       <!-- Begin Spencer's crappy Javascript -->
       <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.bundle.min.js" charset="utf-8"></script>
@@ -300,11 +304,15 @@ for both MMSA and BBMR -->
         setInterval(updateTicketCount(bbmrLocationFilter, "bbmr"), updateInterval);
         setInterval(updateBusUnitCount(mmsaLocationFilter, "mmsaBusUnit"), updateInterval);
         setInterval(updateBusUnitCount(bbmrLocationFilter, "bbmrBusUnit"), updateInterval);
+        setInterval(updateIssueCount(mmsaLocationFilter, "mmsaIssue"), updateInterval);
+        setInterval(updateIssueCount(bbmrLocationFilter, "bbmrIssue"), updateInterval);
         updateCloserCount();
         updateTicketCount(mmsaLocationFilter, "mmsa");
         updateTicketCount(bbmrLocationFilter, "bbmr");
         updateBusUnitCount(mmsaLocationFilter, "mmsaBusUnit");
         updateBusUnitCount(bbmrLocationFilter, "bbmrBusUnit");
+        updateIssueCount(bbmrLocationFilter, "bbmrIssue");
+        updateIssueCount(mmsaLocationFilter, "mmsaIssue");
 
 
         var employees = [
@@ -527,11 +535,53 @@ for both MMSA and BBMR -->
           $("#green-circle").html(gcWinners);
         }
 
+        // Ticket Count by Issue, Created in the Last 30 Days
+        // Params: location filter (MMSA or BBMR) and the id of the canvas html element
+        function updateIssueCount(locationFilter, chartId) {
+          $.ajax({
+            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$top=300&$select=Issue&$filter=(Created ge datetime'" + thirtyDaysAgo + "') and " + locationFilter,
+            type: "GET",
+            dataType: "json",
+            timeout: 5000,
+            headers: {
+                accept: "application/json;odata=verbose",
+                contentType: "application/json;odata=verbose"
+            },
+            success: function (data) {
+              var issueCounts = {};
+              var results = data.d.results;
+              console.log(results);
+              for (var i = 0; i < results.length; i++) {
+                var result = results[i];
+                var issue = result.Issue;
+                issueCounts[issue] = issueCounts[issue] ? issueCounts[issue]+1 : 1;
+              }
+
+              // Sort the business units
+              var sortedIssue = Object.keys(issueCounts).sort(function(a,b){return issueCounts[b]-issueCounts[a];});
+              var slicedIssue = sortedIssue.slice(0, topCount);
+              var otherCount = sortedIssue.length - topCount;
+              slicedIssue.push("All Others (" + otherCount + ")");
+              var sortedIssueCount = Object.values(issueCounts).sort(function(a,b){return b - a; });
+              var slicedIssueCount = sortedIssueCount.slice(0, topCount);
+              var theOthers = sortedIssueCount.slice(topCount, sortedIssueCount.length);
+              var sumTheOthers = theOthers.reduce(function(a,b){return a+b;});
+              slicedIssueCount.push(sumTheOthers);
+              makeChart(slicedIssue, slicedIssueCount, chartId);
+            },
+            error: function(data, errorCode, errorMessage) {
+              $("#container").html(errorMessage + errorCode);
+              console.log("MAJOR ERROR");
+            }
+          }); // END Ajax call
+        } // END updateBusUnitCount();
+
+
         // Ticket Count by Bus Unit, Created in Last 30 Days
         // Params: location filter (MMSA or BBMR) and the id of the canvas html element
         function updateBusUnitCount(locationFilter, chartId) {
           $.ajax({
-            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$top=300&select=AssignedToId&$filter=(Created ge datetime'" + thirtyDaysAgo + "') and " + locationFilter,
+            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$top=300&$select=Business_x0020_Unit&$filter=(Created ge datetime'" + thirtyDaysAgo + "') and " + locationFilter,
             type: "GET",
             dataType: "json",
             timeout: 5000,
