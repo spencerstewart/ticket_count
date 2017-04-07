@@ -333,9 +333,12 @@ for both MMSA and BBMR -->
           },
           success: function (data) {
             var indCounts = {}; // Empty object for indCounts.
+            var busUnitCounts = {};
             var results = data.d.results;
             for (var i = 0; i < results.length; i++) {
               var result = results[i];
+
+              // Count up individuals closing tickets
               individualsAssigned = result.AssignedToId.results;
               for (var j = 0; j < individualsAssigned.length; j++) {
                 var individual = individualsAssigned[j];
@@ -343,7 +346,11 @@ for both MMSA and BBMR -->
                 indCounts[individual] = indCounts[individual] ? indCounts[individual]+1 : 1;
               }
 
+              // Count business units' tickets
+              var busUnit = result.Business_x0020_Unit;
+              busUnitCounts[busUnit] = busUnitCounts[busUnit] ? busUnitCounts[busUnit]+1 : 1;
             }
+            console.log(busUnitCounts);
             resetCount(employees);
             assignCount(indCounts);
             var sortedByCount = sortByCount();
@@ -435,9 +442,6 @@ for both MMSA and BBMR -->
     Sorry my code sucks. Created by Spencer Stewart | spencer@spencer.tech
     Limitations: ugly code. only counts up to 100 tickets per category
     -->
-    <head>
-      <script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
-    </head>
 
     <h1>Ticket Count by Priority: MMSA</h1>
     <style media="screen">
@@ -513,7 +517,6 @@ for both MMSA and BBMR -->
             },
             success: function (data) {
                 // you can find the items in JSON format under data.results
-              console.log(data.d.results.length);
               $("#critical_priority").html(data.d.results.length);
             },
             error: function (data, errorCode, errorMessage) {
@@ -532,7 +535,6 @@ for both MMSA and BBMR -->
             },
             success: function (data) {
                 // you can find the items in JSON format under data.results
-              console.log(data.d.results.length);
               $("#high_priority").html(data.d.results.length);
             },
             error: function (data, errorCode, errorMessage) {
@@ -574,7 +576,6 @@ for both MMSA and BBMR -->
             },
             success: function (data) {
                 // you can find the items in JSON format under data.results
-              console.log(data.d.results.length);
               $("#low_priority").html(data.d.results.length);
             },
             error: function (data, errorCode, errorMessage) {
@@ -625,8 +626,6 @@ for both MMSA and BBMR -->
             },
             success: function(data) {
                 // you can find the items in JSON format under data.results
-              console.log(data.d.results);
-              console.log(data.d.results.length);
               $("#bbmr_critical_priority").html(data.d.results.length);
             },
             error: function(data, errorCode, errorMessage) {
@@ -645,8 +644,6 @@ for both MMSA and BBMR -->
             },
             success: function(data) {
                 // you can find the items in JSON format under data.results
-              console.log(data.d.results);
-              console.log(data.d.results.length);
               $("#bbmr_high_priority").html(data.d.results.length);
             },
             error: function(data, errorCode, errorMessage) {
@@ -665,8 +662,6 @@ for both MMSA and BBMR -->
             },
             success: function(data) {
                 // you can find the items in JSON format under data.results
-              console.log(data.d.results);
-              console.log(data.d.results.length);
               $("#bbmr_medium_priority").html(data.d.results.length);
             },
             error: function(data, errorCode, errorMessage) {
@@ -685,8 +680,6 @@ for both MMSA and BBMR -->
             },
             success: function(data) {
                 // you can find the items in JSON format under data.results
-              console.log(data.d.results);
-              console.log(data.d.results.length);
               $("#bbmr_low_priority").html(data.d.results.length);
             },
             error: function(data, errorCode, errorMessage) {
