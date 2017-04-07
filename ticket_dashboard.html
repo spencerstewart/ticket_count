@@ -221,254 +221,7 @@ for both MMSA and BBMR -->
     </div>
 
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.bundle.min.js" charset="utf-8"></script>
-    <script>
-      // Configuration variables
-      var updateInterval = 60000; // How frequently to update ticket counts, in milliseconds
-      var startOfMonth = getTheFirst();
-      var thirtyDaysAgo = getThirtyDaysAgo();
-      console.log(thirtyDaysAgo);
-      var employees = [
-        {
-          name: "Craig Lindstrom",
-          ids: [1055, 947],
-          count: 0
-        },
-        {
-          name: "Ben Brissey",
-          ids: [1470, 1309],
-          count: 0
-        },
-        {
-          name: "Mike Mossman",
-          ids: [1405, 1110],
-          count: 0
-        },
-        {
-          name: "Roger Vieau",
-          ids: [1466, 1280],
-          count: 0
-        },
-        {
-          name: "Spencer Stewart",
-          ids: [1493],
-          count: 0
-        },
-        {
-          name: "Matt Berman",
-          ids: [1153],
-          count: 0
-        },
-        {
-          name: "Randy Brodrick",
-          ids: [23],
-          count: 0
-        },
-        {
-          name: "Bruce Burton",
-          ids: [1],
-          count: 0
-        },
-        {
-          name: "David Childs",
-          ids: [177],
-          count: 0
-        },
-        {
-          name: "Matt Clausen",
-          ids: [462],
-          count: 0
-        },
-        {
-          name: "Casey Cordi",
-          ids: [828],
-          count: 0
-        },
-        {
-          name: "Ric Dean",
-          ids: [20],
-          count: 0
-        },
-        {
-          name: "James Delmarto",
-          ids: [687],
-          count: 0
-        },
-        {
-          name: "Jeff Donze",
-          ids: [95],
-          count: 0
-        },
-        {
-          name: "Sam Elachkar",
-          ids: [1403],
-          count: 0
-        },
-        {
-          name: "Morgan Faggianelli",
-          ids: [332],
-          count: 0
-        },
-        {
-          name: "Juan Garcia",
-          ids: [19],
-          count: 0
-        },
-        {
-          name: "Tom Keese",
-          ids: [202],
-          count: 0
-        },
-        {
-          name: "Chad Lawver",
-          ids: [1644],
-          count: 0
-        },
-        {
-          name: "Lea Martin",
-          ids: [103],
-          count: 0
-        },
-        {
-          name: "Michael Payne",
-          ids: [186],
-          count: 0
-        },
-        {
-          name: "Chris Robinette",
-          ids: [17],
-          count: 0
-        },
-        {
-          name: "Al Rubalcava",
-          ids: [262],
-          count: 0
-        },
-        {
-          name: "Michelle Selander",
-          ids: [282],
-          count: 0
-        },
-        {
-          name: "James Shoshone",
-          ids: [189],
-          count: 0
-        }
-      ];
 
-      // Returns 'counts' object with {emp ID: ticket count}
-      function updateTicketCount() {
-        $.ajax({
-          url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$top=600&select=AssignedToId&$filter=(Modified ge datetime'" + startOfMonth + "') and (OData__Status eq 'Closed')",
-          type: "GET",
-          dataType: "json",
-          timeout: 5000,
-          headers: {
-              accept: "application/json;odata=verbose",
-              contentType: "application/json;odata=verbose"
-          },
-          success: function (data) {
-            var indCounts = {}; // Empty object for indCounts.
-            var results = data.d.results;
-            for (var i = 0; i < results.length; i++) {
-              var result = results[i];
-              // Count up individuals closing tickets
-              individualsAssigned = result.AssignedToId.results;
-              for (var j = 0; j < individualsAssigned.length; j++) {
-                var individual = individualsAssigned[j];
-                // Increment the count for that individual.
-                indCounts[individual] = indCounts[individual] ? indCounts[individual]+1 : 1;
-              }
-            }
-            resetCount(employees);
-            assignCount(indCounts);
-            var sortedByCount = sortByCount(employees);
-            updateHtml(sortedByCount);
-          },
-          error: function(data, errorCode, errorMessage) {
-            $("#container").html(errorMessage + errorCode);
-            console.log("MAJOR ERROR");
-          }
-        }); // END Ajax call
-      } // END getTicketCount();
-
-      // Reset all employee counts to 0
-      function resetCount(employees) {
-        for (var i = 0; i < employees.length; i++) {
-          employees[i].count = 0;
-        }
-      }
-
-      // Loop through employees & assign tickets closed count
-      function assignCount(indCounts) {
-        for (var i = 0; i < employees.length; i++) {
-          var employeeIds = employees[i].ids;
-
-          // Loop through each employees' ID. Bear people have 2 IDs. Annoying.
-          for (var j = 0; j < employeeIds.length; j++) {
-            if (employeeIds[j] in indCounts) {
-              // Add the count for each ID associated with the employee.
-              employees[i].count += indCounts[employeeIds[j]];
-            }
-          } // End loop through IDs
-        } // End loop through employees
-      } // End assignCount
-
-      // Sort by greatest ticket count
-      function sortByCount(listToSort) {
-        var sortedCount = listToSort.slice(0);
-        sortedCount.sort(function(a,b) {
-          return b.count - a.count;
-        });
-        return sortedCount;
-      }
-
-      function updateHtml(sortedCount) {
-        var dbdWinners = "", bdWinners = "", bbdWinners = "", bsWinners = "", bgcWinners = "", gcWinners = "";
-        for (var i = 0; i < sortedCount.length; i ++) {
-          if (sortedCount[i].count > 49) {
-            dbdWinners += "<div>" + sortedCount[i].name + ": " + sortedCount[i].count + "</div>";
-          } else if (sortedCount[i].count > 39) {
-            bdWinners += "<div>" + sortedCount[i].name + ": " + sortedCount[i].count + "</div>";
-          } else if (sortedCount[i].count > 29) {
-            bbdWinners += "<div>" + sortedCount[i].name + ": " + sortedCount[i].count + "</div>";
-          } else if (sortedCount[i].count > 19) {
-            bsWinners += "<div>" + sortedCount[i].name + ": " + sortedCount[i].count + "</div>";
-          } else if (sortedCount[i].count > 9) {
-            bgcWinners += "<div>" + sortedCount[i].name + ": " + sortedCount[i].count + "</div>";
-          } else if (sortedCount[i].count > 0) {
-            gcWinners += "<div>" + sortedCount[i].name + ": " + sortedCount[i].count + "</div>";
-          }
-        }
-        $("#dbl-black-diamond").html(dbdWinners);
-        $("#black-diamond").html(bdWinners);
-        $("#blue-black-diamond").html(bbdWinners);
-        $("#blue-square").html(bsWinners);
-        $("#blue-green-circle").html(bgcWinners);
-        $("#green-circle").html(gcWinners);
-      }
-
-
-      // Get the datetime for the beginning of the month
-      function getTheFirst() {
-        var d = new Date();
-        d.setUTCDate(1);
-        d.setUTCHours(0);
-        d.setUTCMinutes(0);
-        d.setUTCSeconds(0);
-        d.setUTCMilliseconds(0);
-        return d.toISOString();
-      }
-
-      function getThirtyDaysAgo() {
-        var d = new Date();
-        d.setDate(d.getDate() - 30);
-        return d.toISOString();
-      }
-
-      setInterval(updateTicketCount, updateInterval);
-      updateTicketCount();
-    </script>
 
   </div>
 
@@ -528,21 +281,247 @@ for both MMSA and BBMR -->
       </div>
 
       <!-- Begin Spencer's crappy Javascript -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.bundle.min.js" charset="utf-8"></script>
       <script>
+        // Configuration variables
         var updateInterval = 60000; // How frequently to update ticket counts, in milliseconds
+        var startOfMonth = getTheFirst();
+        var thirtyDaysAgo = getThirtyDaysAgo();
         var topCount = 7; // How many rankings to have. ie. top 3, top 5 closers, etc.
-        var mmsaLocationFilter = "(Site0 ne 'BBMR - Snow Summit') and (Site0 ne 'BBMR - Bear Mountain')"
+        var mmsaLocationFilter = "(Site0 ne 'BBMR - Snow Summit') and (Site0 ne 'BBMR - Bear Mountain')";
         var bbmrLocationFilter = "(startswith(Site0,'BBMR'))";
 
+        setInterval(updateCloserCount, updateInterval);
         setInterval(updateTicketCount(mmsaLocationFilter, "mmsa"), updateInterval);
         setInterval(updateTicketCount(bbmrLocationFilter, "bbmr"), updateInterval);
         setInterval(updateBusUnitCount(mmsaLocationFilter, "mmsaBusUnit"), updateInterval);
         setInterval(updateBusUnitCount(bbmrLocationFilter, "bbmrBusUnit"), updateInterval);
+        updateCloserCount();
         updateTicketCount(mmsaLocationFilter, "mmsa");
         updateTicketCount(bbmrLocationFilter, "bbmr");
         updateBusUnitCount(mmsaLocationFilter, "mmsaBusUnit");
         updateBusUnitCount(bbmrLocationFilter, "bbmrBusUnit");
 
+
+        var employees = [
+          {
+            name: "Craig Lindstrom",
+            ids: [1055, 947],
+            count: 0
+          },
+          {
+            name: "Ben Brissey",
+            ids: [1470, 1309],
+            count: 0
+          },
+          {
+            name: "Mike Mossman",
+            ids: [1405, 1110],
+            count: 0
+          },
+          {
+            name: "Roger Vieau",
+            ids: [1466, 1280],
+            count: 0
+          },
+          {
+            name: "Spencer Stewart",
+            ids: [1493],
+            count: 0
+          },
+          {
+            name: "Matt Berman",
+            ids: [1153],
+            count: 0
+          },
+          {
+            name: "Randy Brodrick",
+            ids: [23],
+            count: 0
+          },
+          {
+            name: "Bruce Burton",
+            ids: [1],
+            count: 0
+          },
+          {
+            name: "David Childs",
+            ids: [177],
+            count: 0
+          },
+          {
+            name: "Matt Clausen",
+            ids: [462],
+            count: 0
+          },
+          {
+            name: "Casey Cordi",
+            ids: [828],
+            count: 0
+          },
+          {
+            name: "Ric Dean",
+            ids: [20],
+            count: 0
+          },
+          {
+            name: "James Delmarto",
+            ids: [687],
+            count: 0
+          },
+          {
+            name: "Jeff Donze",
+            ids: [95],
+            count: 0
+          },
+          {
+            name: "Sam Elachkar",
+            ids: [1403],
+            count: 0
+          },
+          {
+            name: "Morgan Faggianelli",
+            ids: [332],
+            count: 0
+          },
+          {
+            name: "Juan Garcia",
+            ids: [19],
+            count: 0
+          },
+          {
+            name: "Tom Keese",
+            ids: [202],
+            count: 0
+          },
+          {
+            name: "Chad Lawver",
+            ids: [1644],
+            count: 0
+          },
+          {
+            name: "Lea Martin",
+            ids: [103],
+            count: 0
+          },
+          {
+            name: "Michael Payne",
+            ids: [186],
+            count: 0
+          },
+          {
+            name: "Chris Robinette",
+            ids: [17],
+            count: 0
+          },
+          {
+            name: "Al Rubalcava",
+            ids: [262],
+            count: 0
+          },
+          {
+            name: "Michelle Selander",
+            ids: [282],
+            count: 0
+          },
+          {
+            name: "James Shoshone",
+            ids: [189],
+            count: 0
+          }
+        ];
+
+        // Returns 'counts' object with {emp ID: ticket count}
+        function updateCloserCount() {
+          $.ajax({
+            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$top=600&select=AssignedToId&$filter=(Modified ge datetime'" + startOfMonth + "') and (OData__Status eq 'Closed')",
+            type: "GET",
+            dataType: "json",
+            timeout: 5000,
+            headers: {
+                accept: "application/json;odata=verbose",
+                contentType: "application/json;odata=verbose"
+            },
+            success: function (data) {
+              var indCounts = {}; // Empty object for indCounts.
+              var results = data.d.results;
+              for (var i = 0; i < results.length; i++) {
+                var result = results[i];
+                // Count up individuals closing tickets
+                individualsAssigned = result.AssignedToId.results;
+                for (var j = 0; j < individualsAssigned.length; j++) {
+                  var individual = individualsAssigned[j];
+                  // Increment the count for that individual.
+                  indCounts[individual] = indCounts[individual] ? indCounts[individual]+1 : 1;
+                }
+              }
+              resetCount(employees);
+              assignCount(indCounts);
+              var sortedByCount = sortByCount(employees);
+              updateHtml(sortedByCount);
+            },
+            error: function(data, errorCode, errorMessage) {
+              $("#container").html(errorMessage + errorCode);
+              console.log("MAJOR ERROR");
+            }
+          }); // END Ajax call
+        } // END getTicketCount();
+
+        // Reset all employee counts to 0
+        function resetCount(employees) {
+          for (var i = 0; i < employees.length; i++) {
+            employees[i].count = 0;
+          }
+        }
+
+        // Loop through employees & assign tickets closed count
+        function assignCount(indCounts) {
+          for (var i = 0; i < employees.length; i++) {
+            var employeeIds = employees[i].ids;
+
+            // Loop through each employees' ID. Bear people have 2 IDs. Annoying.
+            for (var j = 0; j < employeeIds.length; j++) {
+              if (employeeIds[j] in indCounts) {
+                // Add the count for each ID associated with the employee.
+                employees[i].count += indCounts[employeeIds[j]];
+              }
+            } // End loop through IDs
+          } // End loop through employees
+        } // End assignCount
+
+        // Sort by greatest ticket count
+        function sortByCount(listToSort) {
+          var sortedCount = listToSort.slice(0);
+          sortedCount.sort(function(a,b) {
+            return b.count - a.count;
+          });
+          return sortedCount;
+        }
+
+        function updateHtml(sortedCount) {
+          var dbdWinners = "", bdWinners = "", bbdWinners = "", bsWinners = "", bgcWinners = "", gcWinners = "";
+          for (var i = 0; i < sortedCount.length; i ++) {
+            if (sortedCount[i].count > 49) {
+              dbdWinners += "<div>" + sortedCount[i].name + ": " + sortedCount[i].count + "</div>";
+            } else if (sortedCount[i].count > 39) {
+              bdWinners += "<div>" + sortedCount[i].name + ": " + sortedCount[i].count + "</div>";
+            } else if (sortedCount[i].count > 29) {
+              bbdWinners += "<div>" + sortedCount[i].name + ": " + sortedCount[i].count + "</div>";
+            } else if (sortedCount[i].count > 19) {
+              bsWinners += "<div>" + sortedCount[i].name + ": " + sortedCount[i].count + "</div>";
+            } else if (sortedCount[i].count > 9) {
+              bgcWinners += "<div>" + sortedCount[i].name + ": " + sortedCount[i].count + "</div>";
+            } else if (sortedCount[i].count > 0) {
+              gcWinners += "<div>" + sortedCount[i].name + ": " + sortedCount[i].count + "</div>";
+            }
+          }
+          $("#dbl-black-diamond").html(dbdWinners);
+          $("#black-diamond").html(bdWinners);
+          $("#blue-black-diamond").html(bbdWinners);
+          $("#blue-square").html(bsWinners);
+          $("#blue-green-circle").html(bgcWinners);
+          $("#green-circle").html(gcWinners);
+        }
 
         // Ticket Count by Bus Unit, Created in Last 30 Days
         // Params: location filter (MMSA or BBMR) and the id of the canvas html element
@@ -658,6 +637,22 @@ for both MMSA and BBMR -->
                 rotation:280
               }
             });
+          }
+
+          function getTheFirst() {
+            var d = new Date();
+            d.setUTCDate(1);
+            d.setUTCHours(0);
+            d.setUTCMinutes(0);
+            d.setUTCSeconds(0);
+            d.setUTCMilliseconds(0);
+            return d.toISOString();
+          }
+
+          function getThirtyDaysAgo() {
+            var d = new Date();
+            d.setDate(d.getDate() - 30);
+            return d.toISOString();
           }
       </script>
     </div>
