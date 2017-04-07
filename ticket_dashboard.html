@@ -188,10 +188,13 @@ for both MMSA and BBMR -->
     </div>
 
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.bundle.min.js" charset="utf-8"></script>
     <script>
       // Configuration variables
       var updateInterval = 60000; // How frequently to update ticket counts, in milliseconds
       var startOfMonth = getTheFirst();
+      var thirtyDaysAgo = getThirtyDaysAgo();
+      console.log(thirtyDaysAgo);
       var employees = [
         {
           name: "Craig Lindstrom",
@@ -333,11 +336,9 @@ for both MMSA and BBMR -->
           },
           success: function (data) {
             var indCounts = {}; // Empty object for indCounts.
-            var busUnitCounts = {};
             var results = data.d.results;
             for (var i = 0; i < results.length; i++) {
               var result = results[i];
-
               // Count up individuals closing tickets
               individualsAssigned = result.AssignedToId.results;
               for (var j = 0; j < individualsAssigned.length; j++) {
@@ -345,15 +346,10 @@ for both MMSA and BBMR -->
                 // Increment the count for that individual.
                 indCounts[individual] = indCounts[individual] ? indCounts[individual]+1 : 1;
               }
-
-              // Count business units' tickets
-              var busUnit = result.Business_x0020_Unit;
-              busUnitCounts[busUnit] = busUnitCounts[busUnit] ? busUnitCounts[busUnit]+1 : 1;
             }
-            console.log(busUnitCounts);
             resetCount(employees);
             assignCount(indCounts);
-            var sortedByCount = sortByCount();
+            var sortedByCount = sortByCount(employees);
             updateHtml(sortedByCount);
           },
           error: function(data, errorCode, errorMessage) {
@@ -386,8 +382,8 @@ for both MMSA and BBMR -->
       } // End assignCount
 
       // Sort by greatest ticket count
-      function sortByCount() {
-        var sortedCount = employees.slice(0);
+      function sortByCount(listToSort) {
+        var sortedCount = listToSort.slice(0);
         sortedCount.sort(function(a,b) {
           return b.count - a.count;
         });
@@ -428,6 +424,12 @@ for both MMSA and BBMR -->
         d.setUTCMinutes(0);
         d.setUTCSeconds(0);
         d.setUTCMilliseconds(0);
+        return d.toISOString();
+      }
+
+      function getThirtyDaysAgo() {
+        var d = new Date();
+        d.setDate(d.getDate() - 30);
         return d.toISOString();
       }
 
@@ -572,9 +574,15 @@ for both MMSA and BBMR -->
         <div class="low priority">Low Priority</div>
         <p id="bbmr_low_priority">Loading...</p>
       </div>
+      <div class="">
+        <h1>Tickets by Business Unit, Last 30 days</h1>
+        <canvas id="bbmrBusUnit" width="400" height="400"></canvas>
+      </div>
       <script>
         var updateInterval = 60000; // How frequently to update the ticket count.
+        var topCount = 7; // How many rankings to have. ie. top 3, top 5 closers, etc.
 
+        // Ticket Count by Priority
         function updateTicketCount() {
           var bbmrPriorities = {
             "#bbmr_critical_priority":"(1) Critical",
@@ -614,8 +622,75 @@ for both MMSA and BBMR -->
             }
           });
         }
+
+        // Ticket Count by Bus Unit, Created in Last 30 Days
+        function updateBusUnitCount() {
+          $.ajax({
+            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$top=300&select=AssignedToId&$filter=(Created ge datetime'" + thirtyDaysAgo + "') and (startswith(Site0,'BBMR'))",
+            type: "GET",
+            dataType: "json",
+            timeout: 5000,
+            headers: {
+                accept: "application/json;odata=verbose",
+                contentType: "application/json;odata=verbose"
+            },
+            success: function (data) {
+              var busUnitCounts = {};
+              var results = data.d.results;
+              for (var i = 0; i < results.length; i++) {
+                var result = results[i];
+                var busUnit = result.Business_x0020_Unit;
+                busUnitCounts[busUnit] = busUnitCounts[busUnit] ? busUnitCounts[busUnit]+1 : 1;
+              }
+
+              // Sort the business units
+              var sortedBusUnit = Object.keys(busUnitCounts).sort(function(a,b){return busUnitCounts[b]-busUnitCounts[a]});
+              var slicedBusUnit = sortedBusUnit.slice(0, topCount);
+              var otherCount = sortedBusUnit.length - topCount;
+              slicedBusUnit.push("All Others (" + otherCount + ")");
+              var sortedBusUnitCount = Object.values(busUnitCounts).sort(function(a,b){return b -a });
+              var slicedBusUnitCount = sortedBusUnitCount.slice(0, topCount);
+              var theOthers = sortedBusUnitCount.slice(topCount, sortedBusUnitCount.length);
+              var sumTheOthers = theOthers.reduce(function(a,b){return a+b;});
+              slicedBusUnitCount.push(sumTheOthers);
+              makeChart(slicedBusUnit, slicedBusUnitCount);
+            },
+            error: function(data, errorCode, errorMessage) {
+              $("#container").html(errorMessage + errorCode);
+              console.log("MAJOR ERROR");
+            }
+          }); // END Ajax call
+        } // END getTicketCount();
+
         setInterval(updateTicketCount, updateInterval);
+        setInterval(updateBusUnitCount, updateInterval);
         updateTicketCount();
+        updateBusUnitCount();
+
+        function makeChart(labels, data) {
+          var ctx = document.getElementById("bbmrBusUnit");
+          var myChart = new Chart(ctx, {
+              type: 'pie',
+              data: {
+                  labels: labels,
+                  datasets: [{
+                      data: data,
+                      backgroundColor: [
+                                      "#FF1C09",
+                                      "#E87008",
+                                      "#FFC503",
+                                      "#7de808",
+                                      "#4fbb0c",
+                                      "#0c8c2d",
+                                      "#0c7a8c"
+                                  ],
+                  }]
+              },
+              options: {
+
+              }
+                });
+            }
       </script>
     </div>
   </div>
