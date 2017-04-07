@@ -190,7 +190,7 @@ for both MMSA and BBMR -->
 
     <script>
       // Configuration variables
-      var updateInterval = 600000; // How frequently to update ticket counts, in milliseconds
+      var updateInterval = 60000; // How frequently to update ticket counts, in milliseconds
       var startOfMonth = getTheFirst();
       var employees = [
         {
@@ -332,7 +332,7 @@ for both MMSA and BBMR -->
               contentType: "application/json;odata=verbose"
           },
           success: function (data) {
-            var counts = {}; // Empty object for counts.
+            var indCounts = {}; // Empty object for indCounts.
             var results = data.d.results;
             for (var i = 0; i < results.length; i++) {
               var result = results[i];
@@ -340,10 +340,12 @@ for both MMSA and BBMR -->
               for (var j = 0; j < individualsAssigned.length; j++) {
                 var individual = individualsAssigned[j];
                 // Increment the count for that individual.
-                counts[individual] = counts[individual] ? counts[individual]+1 : 1;
+                indCounts[individual] = indCounts[individual] ? indCounts[individual]+1 : 1;
               }
+
             }
-            assignCount(counts);
+            resetCount(employees);
+            assignCount(indCounts);
             var sortedByCount = sortByCount();
             updateHtml(sortedByCount);
           },
@@ -354,16 +356,23 @@ for both MMSA and BBMR -->
         }); // END Ajax call
       } // END getTicketCount();
 
+      // Reset all employee counts to 0
+      function resetCount(employees) {
+        for (var i = 0; i < employees.length; i++) {
+          employees[i].count = 0;
+        }
+      }
+
       // Loop through employees & assign tickets closed count
-      function assignCount(counts) {
+      function assignCount(indCounts) {
         for (var i = 0; i < employees.length; i++) {
           var employeeIds = employees[i].ids;
 
           // Loop through each employees' ID. Bear people have 2 IDs. Annoying.
           for (var j = 0; j < employeeIds.length; j++) {
-            if (employeeIds[j] in counts) {
+            if (employeeIds[j] in indCounts) {
               // Add the count for each ID associated with the employee.
-              employees[i].count += counts[employeeIds[j]];
+              employees[i].count += indCounts[employeeIds[j]];
             }
           } // End loop through IDs
         } // End loop through employees
