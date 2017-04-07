@@ -491,19 +491,19 @@ for both MMSA and BBMR -->
     <div class="container">
       <div class="p_box">
         <div class="critical priority">Critical Priority</div>
-        <p id="critical_priority">Loading...</p>
+        <p id="mmsa_critical_priority">Loading...</p>
       </div>
       <div class="p_box">
         <div class="high priority">High Priority</div>
-        <p id="high_priority">Loading...</p>
+        <p id="mmsa_high_priority">Loading...</p>
       </div>
       <div class="p_box">
         <div class="medium priority">Medium Priority</div>
-        <p id="medium_priority">Loading...</p>
+        <p id="mmsa_medium_priority">Loading...</p>
       </div>
       <div class="p_box">
         <div class="low priority">Low Priority</div>
-        <p id="low_priority">Loading...</p>
+        <p id="mmsa_low_priority">Loading...</p>
       </div>
       <div class="">
         <h1>MMSA Tickets by Business Unit</h1>
@@ -516,8 +516,6 @@ for both MMSA and BBMR -->
 
 
   <div class="super-column" id="bbmr-tickets">
-    <!-- Ticket Count by Priority: BBMR
-    Written by Spencer Stewart | spencer@spencer.tech -->
     <h1>Ticket Count by Priority</h1>
     <div class="container">
       <div class="p_box">
@@ -541,52 +539,23 @@ for both MMSA and BBMR -->
         <h4>Last 30 days</h4>
         <canvas id="bbmrBusUnit" width="400" height="400"></canvas>
       </div>
+
+      <!-- Begin Spencer's crappy Javascript -->
       <script>
         var updateInterval = 60000; // How frequently to update ticket counts, in milliseconds
         var topCount = 7; // How many rankings to have. ie. top 3, top 5 closers, etc.
         var mmsaLocationFilter = "(Site0 ne 'BBMR - Snow Summit') and (Site0 ne 'BBMR - Bear Mountain')"
         var bbmrLocationFilter = "(startswith(Site0,'BBMR'))";
 
-        // Ticket Count by Priority
-        function updateTicketCount() {
-          var mmsaPriorities = {
-            "#critical_priority":"(1) Critical",
-            "#high_priority":"(2) High",
-            "#medium_priority":"(3) Medium",
-            "#low_priority":"(4) Low"
-          };
-          $.ajax({
-            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$top200&select=Title,Priority,OData__Status&$filter=(OData__Status ne 'Closed') and (Site0 ne 'BBMR - Snow Summit') and (Site0 ne 'BBMR - Bear Mountain')",
-            type: "GET",
-            // dataType: "json",
-            timeout: 5000,
-            headers: {
-                accept: "application/json;odata=verbose",
-                contentType: "application/json;odata=verbose"
-            },
-            success: function (data) {
-                // you can find the items in JSON format under data.results
-                var priorityCounts = {};
-                var results = data.d.results;
-                for (var i = 0; i < results.length; i++) {
-                  var result = results[i];
-                  var priority = result.Priority;
-                  priorityCounts[priority] = priorityCounts[priority] ? priorityCounts[priority]+1 : 1;
-                }
-                for (var priority in mmsaPriorities) {
-                  var priorityString = mmsaPriorities[priority];
-                  priorityCounts[priorityString] = priorityCounts[priorityString] ? priorityCounts[priorityString] : 0;
-                  $(priority).html(priorityCounts[priorityString]);
-                }
-            },
-            error: function (data, errorCode, errorMessage) {
-                // error handling
-                for (var priority in mmsaPriorities) {
-                  $(priority).html('Error');
-                }
-            }
-          });
-        }
+        setInterval(updateTicketCount(mmsaLocationFilter, "mmsa"), updateInterval);
+        setInterval(updateTicketCount(bbmrLocationFilter, "bbmr"), updateInterval);
+        setInterval(updateBusUnitCount(mmsaLocationFilter, "mmsaBusUnit"), updateInterval);
+        setInterval(updateBusUnitCount(bbmrLocationFilter, "bbmrBusUnit"), updateInterval);
+        updateTicketCount(mmsaLocationFilter, "mmsa");
+        updateTicketCount(bbmrLocationFilter, "bbmr");
+        updateBusUnitCount(mmsaLocationFilter, "mmsaBusUnit");
+        updateBusUnitCount(bbmrLocationFilter, "bbmrBusUnit");
+
 
         // Ticket Count by Bus Unit, Created in Last 30 Days
         // Params: location filter (MMSA or BBMR) and the id of the canvas html element
@@ -610,11 +579,11 @@ for both MMSA and BBMR -->
               }
 
               // Sort the business units
-              var sortedBusUnit = Object.keys(busUnitCounts).sort(function(a,b){return busUnitCounts[b]-busUnitCounts[a]});
+              var sortedBusUnit = Object.keys(busUnitCounts).sort(function(a,b){return busUnitCounts[b]-busUnitCounts[a];});
               var slicedBusUnit = sortedBusUnit.slice(0, topCount);
               var otherCount = sortedBusUnit.length - topCount;
               slicedBusUnit.push("All Others (" + otherCount + ")");
-              var sortedBusUnitCount = Object.values(busUnitCounts).sort(function(a,b){return b -a });
+              var sortedBusUnitCount = Object.values(busUnitCounts).sort(function(a,b){return b - a; });
               var slicedBusUnitCount = sortedBusUnitCount.slice(0, topCount);
               var theOthers = sortedBusUnitCount.slice(topCount, sortedBusUnitCount.length);
               var sumTheOthers = theOthers.reduce(function(a,b){return a+b;});
@@ -628,23 +597,22 @@ for both MMSA and BBMR -->
           }); // END Ajax call
         } // END updateBusUnitCount();
 
-        setInterval(updateTicketCount, updateInterval);
-        setInterval(updateBusUnitCount(mmsaLocationFilter, "mmsaBusUnit"), updateInterval);
-        setInterval(updateBusUnitCount(bbmrLocationFilter, "bbmrBusUnit"), updateInterval);
-        updateTicketCount();
-        updateBusUnitCount(mmsaLocationFilter, "mmsaBusUnit");
-        updateBusUnitCount(bbmrLocationFilter, "bbmrBusUnit");
-
         // Ticket Count by Priority
-        function updateTicketCount() {
-          var bbmrPriorities = {
-            "#bbmr_critical_priority":"(1) Critical",
-            "#bbmr_high_priority":"(2) High",
-            "#bbmr_medium_priority":"(3) Medium",
-            "#bbmr_low_priority":"(4) Low"
-          };
+        function updateTicketCount(locationFilter, locationPrefix) {
+          var priorities = [
+            "(1) Critical",
+            "(2) High",
+            "(3) Medium",
+            "(4) Low"
+          ];
+          var elementIDs = [
+            "_critical_priority",
+            "_high_priority",
+            "_medium_priority",
+            "_low_priority"
+          ];
           $.ajax({
-            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(OData__Status ne 'Closed') and (startswith(Site0,'BBMR'))",
+            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$select=Title,Priority,OData__Status&$filter=(OData__Status ne 'Closed') and " + locationFilter,
             type: "GET",
             // dataType: "json",
             timeout: 3000,
@@ -656,15 +624,18 @@ for both MMSA and BBMR -->
                 // you can find the items in JSON format under data.results
                 var priorityCounts = {};
                 var results = data.d.results;
+                // Count the tickets, accumulating by priority.
                 for (var i = 0; i < results.length; i++) {
                   var result = results[i];
                   var priority = result.Priority;
                   priorityCounts[priority] = priorityCounts[priority] ? priorityCounts[priority]+1 : 1;
                 }
-                for (var priority in bbmrPriorities) {
-                  var priorityString = bbmrPriorities[priority];
+                // Make sure all priorities have a number value, including 0
+                // The updates the html with the count for each priority.
+                for (var i = 0; i < priorities.length; i++) {
+                  var priorityString = priorities[i];
                   priorityCounts[priorityString] = priorityCounts[priorityString] ? priorityCounts[priorityString] : 0;
-                  $(priority).html(priorityCounts[priorityString]);
+                  $("#" + locationPrefix + elementIDs[i]).html(priorityCounts[priorityString]);
                 }
             },
             error: function (data, errorCode, errorMessage) {
