@@ -14,125 +14,158 @@ for both MMSA and BBMR -->
   #leader-board {
     width: 465px;
   }
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .p_box {
+    margin: 2px;
+    /*border: 2px solid #aaa;*/
+    background-color: #eaeaea;
+    width: 23%;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    text-align: center;
+  }
+  .priority {
+    color: #fff;
+    padding: 1em;
+  }
+  .critical {
+    background-color: #FF1C09;
+  }
+  .high {
+    background-color: #E87008;
+  }
+  .medium {
+    background-color: #FFC503;
+  }
+  .low {
+    background-color: #CDE808;
+  }
+  @media (max-width: 720px) {
+    .p_box {
+      width: 48%;
+    }
+  }
+  @media (max-width: 400px) {
+    .p_box {
+      width: 99%;
+    }
+  }
+  .piste {
+    min-height: 50px;
+    min-width: 450px;
+    margin: 2px;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    float: left;
+    width: 23%;
+    color: #fff;
+    font-family: times, serif;
+    font-size: 22px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+  .super-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 500px;
+    margin: auto;
+  }
+  .container {
+    display: flex;
+    align-items: center;
+  }
+  .icon {
+    padding: 5px;
+    margin-left: 0.5em;
+    background-color: #fefefe;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  .black-diamond {
+    background-color: #111;
+  }
+  .blue-square {
+    background-color: #2828ff;
+  }
+  .green-circle {
+    background-color: green;
+  }
+  .names {
+    border-left: 1px #fff solid;
+    margin: 0 1em;
+    padding: 0 1em;
+  }
+  .bd-icon {
+     width: 20px;
+     height: 20px;
+     background: black;
+     margin: 9px 0 0 20px;
+     /* Rotate */
+     -webkit-transform: rotate(-45deg);
+     -moz-transform: rotate(-45deg);
+     -ms-transform: rotate(-45deg);
+     -o-transform: rotate(-45deg);
+     transform: rotate(-45deg);
+     /* Rotate Origin */
+     -webkit-transform-origin: 0 100%;
+     -moz-transform-origin: 0 100%;
+     -ms-transform-origin: 0 100%;
+     -o-transform-origin: 0 100%;
+     transform-origin: 0 100%;
+  }
+  .dbl-black {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 2px;
+  }
+  .bd-icon-small {
+    width: 15px;
+    height: 15px;
+  }
+  .bs-bd-icon {
+    margin-left: 15px;
+  }
+  .small-text {
+    color: #000;
+    font-size: .3em;
+  }
+  .bs-icon {
+    width: 30px;
+    height: 30px;
+    background: #2828ff;
+  }
+  .gc-icon {
+    width: 24px;
+    height: 24px;
+    margin: 3px;
+    background: green;
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px;
+    border-radius: 15px;
+  }
+  @media (max-width: 720px) {
+    .piste {
+      width: 48%;
+    }
+  }
+  @media (max-width: 400px) {
+    .piste {
+      width: 99%;
+    }
+  }
 </style>
 
 
 <div class="super-duper-container">
   <div class="super-column" id="leader-board">
-    <!-- Monthly Ticket Leaderboard
-    Sorry my code sucks. Created by Spencer Stewart | spencer@spencer.tech
-    Limitations: Only includes first 100 tickets (by ID) from the current month.
-    -->
-    <!-- <script src="js/jquery-3.1.1.min.js" charset="utf-8"></script> -->
     <h1>Monthly Ticket Leaderboard</h1>
-    <style media="screen">
-      .piste {
-        min-height: 50px;
-        min-width: 450px;
-        margin: 2px;
-        padding: 5px;
-        border: none;
-        border-radius: 5px;
-        float: left;
-        width: 23%;
-        color: #fff;
-        font-family: times, serif;
-        font-size: 22px;
-        font-weight: 800;
-        text-transform: uppercase;
-      }
-      .super-container {
-        display: flex;
-        flex-direction: column;
-        max-width: 500px;
-        margin: auto;
-      }
-      .container {
-        display: flex;
-        align-items: center;
-      }
-      .icon {
-        padding: 5px;
-        margin-left: 0.5em;
-        background-color: #fefefe;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-      }
-      .black-diamond {
-        background-color: #111;
-      }
-      .blue-square {
-        background-color: #2828ff;
-      }
-      .green-circle {
-        background-color: green;
-      }
-      .names {
-        border-left: 1px #fff solid;
-        margin: 0 1em;
-        padding: 0 1em;
-      }
-      .bd-icon {
-         width: 20px;
-         height: 20px;
-         background: black;
-         margin: 9px 0 0 20px;
-         /* Rotate */
-         -webkit-transform: rotate(-45deg);
-         -moz-transform: rotate(-45deg);
-         -ms-transform: rotate(-45deg);
-         -o-transform: rotate(-45deg);
-         transform: rotate(-45deg);
-         /* Rotate Origin */
-         -webkit-transform-origin: 0 100%;
-         -moz-transform-origin: 0 100%;
-         -ms-transform-origin: 0 100%;
-         -o-transform-origin: 0 100%;
-         transform-origin: 0 100%;
-      }
-      .dbl-black {
-        display: flex;
-        flex-direction: row;
-        margin-bottom: 2px;
-      }
-      .bd-icon-small {
-        width: 15px;
-        height: 15px;
-      }
-      .bs-bd-icon {
-        margin-left: 15px;
-      }
-      .small-text {
-        color: #000;
-        font-size: .3em;
-      }
-      .bs-icon {
-        width: 30px;
-        height: 30px;
-        background: #2828ff;
-      }
-      .gc-icon {
-        width: 24px;
-        height: 24px;
-        margin: 3px;
-        background: green;
-        -moz-border-radius: 15px;
-        -webkit-border-radius: 15px;
-        border-radius: 15px;
-      }
-      @media (max-width: 720px) {
-        .piste {
-          width: 48%;
-        }
-      }
-      @media (max-width: 400px) {
-        .piste {
-          width: 99%;
-        }
-      }
-    </style>
     <div class="super-container">
       <div class="piste container black-diamond" id="container">
         <div class="icon">
@@ -440,54 +473,8 @@ for both MMSA and BBMR -->
   </div>
 
   <div class="super-column" id="mmsa-tickets">
-    <!-- Ticket Count by Priority: MMSA
-    Sorry my code sucks. Created by Spencer Stewart | spencer@spencer.tech
-    Limitations: ugly code. only counts up to 100 tickets per category
-    -->
 
     <h1>Ticket Count by Priority: MMSA</h1>
-    <style media="screen">
-      .container {
-        display: flex;
-        flex-wrap: wrap;
-      }
-      .p_box {
-        margin: 2px;
-        /*border: 2px solid #aaa;*/
-        background-color: #eaeaea;
-        width: 23%;
-        font-family: Arial, sans-serif;
-        font-size: 16px;
-        font-weight: 800;
-        text-align: center;
-      }
-      .priority {
-        color: #fff;
-        padding: 1em;
-      }
-      .critical {
-        background-color: #FF1C09;
-      }
-      .high {
-        background-color: #E87008;
-      }
-      .medium {
-        background-color: #FFC503;
-      }
-      .low {
-        background-color: #CDE808;
-      }
-      @media (max-width: 720px) {
-        .p_box {
-          width: 48%;
-        }
-      }
-      @media (max-width: 400px) {
-        .p_box {
-          width: 99%;
-        }
-      }
-    </style>
     <div class="container">
       <div class="p_box">
         <div class="critical priority">Critical Priority</div>
