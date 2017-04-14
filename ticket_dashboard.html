@@ -294,7 +294,6 @@ for both MMSA and BBMR -->
         // Configuration variables
         var updateInterval = 60000; // How frequently to update ticket counts, in milliseconds
         var startOfMonth = getTheFirst();
-        var thirtyDaysAgo = getThirtyDaysAgo();
         var topCount = 7; // How many rankings to have. ie. top 3, top 5 closers, etc.
         var mmsaLocationFilter = "(Site0 ne 'BBMR - Snow Summit') and (Site0 ne 'BBMR - Bear Mountain')";
         var bbmrLocationFilter = "(startswith(Site0,'BBMR'))";
@@ -304,15 +303,15 @@ for both MMSA and BBMR -->
         setInterval(updateTicketCount(bbmrLocationFilter, "bbmr"), updateInterval);
         setInterval(updateBusUnitCount(mmsaLocationFilter, "mmsaBusUnit"), updateInterval);
         setInterval(updateBusUnitCount(bbmrLocationFilter, "bbmrBusUnit"), updateInterval);
-        setInterval(updateIssueCount(mmsaLocationFilter, "mmsaIssue"), updateInterval);
-        setInterval(updateIssueCount(bbmrLocationFilter, "bbmrIssue"), updateInterval);
-        updateCloserCount();
+        setInterval(updateGroupCount(mmsaLocationFilter, "Issue", "mmsaIssue"), updateInterval);
+        setInterval(updateGroupCount(bbmrLocationFilter, "Issue", "bbmrIssue"), updateInterval);
+        setInterval(updateGroupCount(bbmrLocationFilter, "Issue", "bbmrIssue"), updateInterval);
         updateTicketCount(mmsaLocationFilter, "mmsa");
         updateTicketCount(bbmrLocationFilter, "bbmr");
         updateBusUnitCount(mmsaLocationFilter, "mmsaBusUnit");
         updateBusUnitCount(bbmrLocationFilter, "bbmrBusUnit");
-        updateIssueCount(bbmrLocationFilter, "bbmrIssue");
-        updateIssueCount(mmsaLocationFilter, "mmsaIssue");
+        updateGroupCount(bbmrLocationFilter, "Issue", "bbmrIssue");
+        updateGroupCount(mmsaLocationFilter, "Issue", "mmsaIssue");
 
 
         var employees = [
@@ -537,9 +536,9 @@ for both MMSA and BBMR -->
 
         // Ticket Count by Issue, Created in the Last 30 Days
         // Params: location filter (MMSA or BBMR) and the id of the canvas html element
-        function updateIssueCount(locationFilter, chartId) {
+        function updateGroupCount(locationFilter, groupBy, chartId, daysAgo = 30) {
           $.ajax({
-            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$top=300&$select=Issue&$filter=(Created ge datetime'" + thirtyDaysAgo + "') and " + locationFilter,
+            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$top=300&$select=Issue&$filter=(Created ge datetime'" + getDaysAgo(daysAgo) + "') and " + locationFilter,
             type: "GET",
             dataType: "json",
             timeout: 5000,
@@ -548,26 +547,26 @@ for both MMSA and BBMR -->
                 contentType: "application/json;odata=verbose"
             },
             success: function (data) {
-              var issueCounts = {};
+              var groupCounts = {};
               var results = data.d.results;
               console.log(results);
               for (var i = 0; i < results.length; i++) {
                 var result = results[i];
-                var issue = result.Issue;
-                issueCounts[issue] = issueCounts[issue] ? issueCounts[issue]+1 : 1;
+                var group = result[groupBy];
+                groupCounts[group] = groupCounts[group] ? groupCounts[group]+1 : 1;
               }
 
               // Sort the business units
-              var sortedIssue = Object.keys(issueCounts).sort(function(a,b){return issueCounts[b]-issueCounts[a];});
-              var slicedIssue = sortedIssue.slice(0, topCount);
-              var otherCount = sortedIssue.length - topCount;
-              slicedIssue.push("All Others (" + otherCount + ")");
-              var sortedIssueCount = Object.values(issueCounts).sort(function(a,b){return b - a; });
-              var slicedIssueCount = sortedIssueCount.slice(0, topCount);
-              var theOthers = sortedIssueCount.slice(topCount, sortedIssueCount.length);
+              var sortedGroup = Object.keys(groupCounts).sort(function(a,b){return groupCounts[b]-groupCounts[a];});
+              var slicedGroup = sortedGroup.slice(0, topCount);
+              var otherCount = sortedGroup.length - topCount;
+              slicedGroup.push("All Others (" + otherCount + ")");
+              var sortedGroupCount = Object.values(groupCounts).sort(function(a,b){return b - a; });
+              var slicedGroupCount = sortedGroupCount.slice(0, topCount);
+              var theOthers = sortedGroupCount.slice(topCount, sortedGroupCount.length);
               var sumTheOthers = theOthers.reduce(function(a,b){return a+b;});
-              slicedIssueCount.push(sumTheOthers);
-              makeChart(slicedIssue, slicedIssueCount, chartId);
+              slicedGroupCount.push(sumTheOthers);
+              makeChart(slicedGroup, slicedGroupCount, chartId);
             },
             error: function(data, errorCode, errorMessage) {
               $("#container").html(errorMessage + errorCode);
@@ -579,9 +578,9 @@ for both MMSA and BBMR -->
 
         // Ticket Count by Bus Unit, Created in Last 30 Days
         // Params: location filter (MMSA or BBMR) and the id of the canvas html element
-        function updateBusUnitCount(locationFilter, chartId) {
+        function updateBusUnitCount(locationFilter, chartId, daysAgo = 30) {
           $.ajax({
-            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$top=300&$select=Business_x0020_Unit&$filter=(Created ge datetime'" + thirtyDaysAgo + "') and " + locationFilter,
+            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$top=300&$select=Business_x0020_Unit&$filter=(Created ge datetime'" + getDaysAgo(daysAgo) + "') and " + locationFilter,
             type: "GET",
             dataType: "json",
             timeout: 5000,
@@ -703,9 +702,9 @@ for both MMSA and BBMR -->
             return d.toISOString();
           }
 
-          function getThirtyDaysAgo() {
+          function getDaysAgo(n) {
             var d = new Date();
-            d.setDate(d.getDate() - 30);
+            d.setDate(d.getDate() - n);
             return d.toISOString();
           }
       </script>
