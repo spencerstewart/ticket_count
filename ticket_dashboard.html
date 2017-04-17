@@ -306,16 +306,16 @@ for both MMSA and BBMR -->
         setInterval(updateCloserCount, updateInterval);
         setInterval(updateTicketCount(mmsaLocationFilter, "mmsa"), updateInterval);
         setInterval(updateTicketCount(bbmrLocationFilter, "bbmr"), updateInterval);
-        setInterval(updateBusUnitCount(mmsaLocationFilter, "mmsaBusUnit"), updateInterval);
-        setInterval(updateBusUnitCount(bbmrLocationFilter, "bbmrBusUnit"), updateInterval);
+        setInterval(updateGroupCount(mmsaLocationFilter, "Business_x0020_Unit", "mmsaBusUnit"), updateInterval);
+        setInterval(updateGroupCount(bbmrLocationFilter, "Business_x0020_Unit", "bbmrBusUnit"), updateInterval);
         setInterval(updateGroupCount(mmsaLocationFilter, "Issue", "mmsaIssue"), updateInterval);
         setInterval(updateGroupCount(bbmrLocationFilter, "Issue", "bbmrIssue"), updateInterval);
         setInterval(updateGroupCount(mmsaLocationFilter, "Site0", "mmsaSite"), updateInterval);
         updateCloserCount();
         updateTicketCount(mmsaLocationFilter, "mmsa");
         updateTicketCount(bbmrLocationFilter, "bbmr");
-        updateBusUnitCount(mmsaLocationFilter, "mmsaBusUnit");
-        updateBusUnitCount(bbmrLocationFilter, "bbmrBusUnit");
+        updateGroupCount(mmsaLocationFilter, "Business_x0020_Unit", "mmsaBusUnit");
+        updateGroupCount(bbmrLocationFilter, "Business_x0020_Unit", "bbmrBusUnit");
         updateGroupCount(bbmrLocationFilter, "Issue", "bbmrIssue");
         updateGroupCount(mmsaLocationFilter, "Issue", "mmsaIssue");
         updateGroupCount(mmsaLocationFilter, "Site0", "mmsaSite");
@@ -573,7 +573,7 @@ for both MMSA and BBMR -->
               var theOthers = sortedGroupCount.slice(topCount, sortedGroupCount.length);
               var sumTheOthers = theOthers.reduce(function(a,b){return a+b;});
               slicedGroupCount.push(sumTheOthers);
-              makeChart(slicedGroup, slicedGroupCount, chartId);
+              makeChart(slicedGroup, slicedGroupCount, chartId, groupBy, locationFilter);
             },
             error: function(data, errorCode, errorMessage) {
               $("#container").html(errorMessage + errorCode);
@@ -674,7 +674,7 @@ for both MMSA and BBMR -->
         }
 
 
-        function makeChart(labels, data, elementID) {
+        function makeChart(labels, data, elementID, groupBy, locationFilter) {
           var ctx = document.getElementById(elementID);
           var myChart = new Chart(ctx, {
               type: 'pie',
@@ -697,7 +697,24 @@ for both MMSA and BBMR -->
                 rotation:280
               }
             });
+          ctx.onclick = function (evt) {
+            var activePoints = myChart.getElementsAtEvent(evt);
+            var chartData = activePoints[0]['_chart'].config.data;
+            var idx = activePoints[0]['_index'];
+
+            var label = chartData.labels[idx];
+            var value = chartData.datasets[0].data[idx];
+
+            var listView;
+            if (locationFilter == "(startswith(Site0,'BBMR'))") {
+              listView = "BBMR%20%20All%20Tickets.aspx";
+            } else {
+              listView = "MMSA%20%20All%20Tickets.aspx"
+            }
+            var url = "http://webshare/departments/it/Lists/IT%20Helpdesk/" + listView + "?FilterField1=" + groupBy + "&FilterValue1=" + label + "&SortField=Created&SortDir=Desc";
+            window.open(url);
           }
+        }
 
           function getTheFirst() {
             var d = new Date();
