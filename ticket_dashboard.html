@@ -226,7 +226,7 @@ for both MMSA and BBMR -->
   </div>
 
   <div class="super-column" id="mmsa-tickets">
-    <h1>Ticket Count by Priority: MMSA</h1>
+    <h1>MMSA Ticket Count by Priority</h1>
     <div class="container">
       <div class="p_box">
         <div class="critical priority">Critical Priority</div>
@@ -250,16 +250,21 @@ for both MMSA and BBMR -->
         <canvas id="mmsaBusUnit" width="400" height="400"></canvas>
       </div>
       <div class="pie-chart">
-        <h1>Tickets by Issue</h1>
+        <h1>MMSA Tickets by Issue</h1>
         <h4>Last 30 days</h4>
         <canvas id="mmsaIssue" width="400" height="400"></canvas>
+      </div>
+      <div class="pie-chart">
+        <h1>MMSA Tickets by Site</h1>
+        <h4>Last 30 days</h4>
+        <canvas id="mmsaSite" width="400" height="400"></canvas>
       </div>
     </div>
   </div>
 
 
   <div class="super-column" id="bbmr-tickets">
-    <h1>Ticket Count by Priority</h1>
+    <h1>BBMR Ticket Count by Priority</h1>
     <div class="container">
       <div class="p_box">
         <div class="critical priority">Critical Priority</div>
@@ -278,12 +283,12 @@ for both MMSA and BBMR -->
         <p id="bbmr_low_priority">Loading...</p>
       </div>
       <div class="pie-chart">
-        <h1>Tickets by Business Unit</h1>
+        <h1>BBMR Tickets by Business Unit</h1>
         <h4>Last 30 days</h4>
         <canvas id="bbmrBusUnit" width="400" height="400"></canvas>
       </div>
       <div class="pie-chart">
-        <h1>Tickets by Issue</h1>
+        <h1>BBMR Tickets by Issue</h1>
         <h4>Last 30 days</h4>
         <canvas id="bbmrIssue" width="400" height="400"></canvas>
       </div>
@@ -305,13 +310,15 @@ for both MMSA and BBMR -->
         setInterval(updateBusUnitCount(bbmrLocationFilter, "bbmrBusUnit"), updateInterval);
         setInterval(updateGroupCount(mmsaLocationFilter, "Issue", "mmsaIssue"), updateInterval);
         setInterval(updateGroupCount(bbmrLocationFilter, "Issue", "bbmrIssue"), updateInterval);
-        setInterval(updateGroupCount(bbmrLocationFilter, "Issue", "bbmrIssue"), updateInterval);
+        setInterval(updateGroupCount(mmsaLocationFilter, "Site0", "mmsaSite"), updateInterval);
+        updateCloserCount();
         updateTicketCount(mmsaLocationFilter, "mmsa");
         updateTicketCount(bbmrLocationFilter, "bbmr");
         updateBusUnitCount(mmsaLocationFilter, "mmsaBusUnit");
         updateBusUnitCount(bbmrLocationFilter, "bbmrBusUnit");
         updateGroupCount(bbmrLocationFilter, "Issue", "bbmrIssue");
         updateGroupCount(mmsaLocationFilter, "Issue", "mmsaIssue");
+        updateGroupCount(mmsaLocationFilter, "Site0", "mmsaSite");
 
 
         var employees = [
@@ -538,7 +545,7 @@ for both MMSA and BBMR -->
         // Params: location filter (MMSA or BBMR) and the id of the canvas html element
         function updateGroupCount(locationFilter, groupBy, chartId, daysAgo = 30) {
           $.ajax({
-            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$top=300&$select=Issue&$filter=(Created ge datetime'" + getDaysAgo(daysAgo) + "') and " + locationFilter,
+            url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$top=300&$filter=(Created ge datetime'" + getDaysAgo(daysAgo) + "') and " + locationFilter,
             type: "GET",
             dataType: "json",
             timeout: 5000,
