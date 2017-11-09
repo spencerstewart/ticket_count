@@ -451,6 +451,8 @@ for both MMSA and BBMR -->
 
         // Returns 'counts' object with {emp ID: ticket count}
         function updateCloserCount() {
+          var indCounts = {}; // Empty object for indCounts.
+
           $.ajax({
             url: "http://webshare/departments/it/_api/Lists/getbytitle('IT%20Helpdesk')/items?$top=600&select=AssignedToId&$filter=(Modified ge datetime'" + startOfMonth + "') and (OData__Status eq 'Closed')",
             type: "GET",
@@ -461,7 +463,6 @@ for both MMSA and BBMR -->
                 contentType: "application/json;odata=verbose"
             },
             success: function (data) {
-              var indCounts = {}; // Empty object for indCounts.
               var results = data.d.results;
               for (var i = 0; i < results.length; i++) {
                 var result = results[i];
@@ -473,16 +474,42 @@ for both MMSA and BBMR -->
                   indCounts[individual] = indCounts[individual] ? indCounts[individual]+1 : 1;
                 }
               }
-              resetCount(employees);
-              assignCount(indCounts);
-              var sortedByCount = sortByCount(employees);
-              updateHtml(sortedByCount);
             },
             error: function(data, errorCode, errorMessage) {
               $("#container").html(errorMessage + errorCode);
               console.log("MAJOR ERROR");
             }
           }); // END Ajax call
+          
+          // Ajax call for New User Account Requests
+          $.ajax({
+            url: "http://webshare/departments/it/_api/Lists/getbytitle('New%20User%20Account%20Requests')/items?$top=600&select=AssignedToId&$filter=(Modified ge datetime'" + startOfMonth + "') and (Status eq 'Closed')",
+            type: "GET",
+            dataType: "json",
+            timeout: 5000,
+            headers: {
+                accept: "application/json;odata=verbose",
+                contentType: "application/json;odata=verbose"
+            },
+            success: function (data) {
+              var results = data.d.results;
+              for (var i = 0; i < results.length; i++) {
+                var result = results[i];
+                // Count up individuals closing tickets
+                editorId = result.EditorId;
+                indCounts[editorId] = indCounts[editorId] ? indCounts[editorId]+1 : 1;
+              }
+            },
+            error: function(data, errorCode, errorMessage) {
+              $("#container").html(errorMessage + errorCode);
+              console.log("MAJOR ERROR");
+            }
+          });
+          
+          resetCount(employees);
+          assignCount(indCounts);
+          var sortedByCount = sortByCount(employees);
+          updateHtml(sortedByCount);
         } // END getTicketCount();
 
         // Reset all employee counts to 0
